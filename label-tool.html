@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RP LABELTOOL v10.9</title>
+    <title>RP LABELTOOL v10.10</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* THEME v10.9 (Midnight Blue, Flat) */
+        /* --- V10.10 THEME (No Lock Screen) --- */
         :root {
             --bg-app: #0d1117;       
             --bg-panel: #161b22;     
@@ -25,43 +25,72 @@
             --border-color: #30363d; 
             --radius-sm: 4px; 
         }
+
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); padding: 40px; max-width: 1400px; margin: 0 auto; }
+
+        /* HEADER */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
-        h1 { font-family: "Segoe UI Variable Display", "Segoe UI", Helvetica, Arial, sans-serif; font-weight: 400; font-size: 1.8rem; letter-spacing: 4px; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 15px; color: #fff; }
+        
+        h1 {
+            font-family: "Segoe UI Variable Display", "Segoe UI", Helvetica, Arial, sans-serif;
+            font-weight: 400;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 0;
+            display: flex; align-items: center; gap: 15px; color: #fff;
+        }
         h1::before { content: ""; display: block; width: 6px; height: 28px; background: var(--accent-green); }
-        .btn-help { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; border-radius: var(--radius-sm); }
+
+        .btn-help {
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-muted);
+            padding: 8px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+            border-radius: var(--radius-sm);
+        }
         .btn-help:hover { color: var(--text-main); border-color: var(--text-main); }
+
+        /* CONFIG & UPLOAD */
         .config-bar { margin-bottom: 20px; }
         .global-input-group { display: flex; align-items: center; gap: 10px; }
         .global-input-group label { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
         .global-input-group input { background: var(--bg-panel); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; font-family: inherit; width: 200px; text-transform: uppercase; border-radius: var(--radius-sm); outline: none; }
         .global-input-group input:focus { border-color: var(--accent-green); }
+
         .upload-zone { background: var(--bg-panel); border: 1px dashed var(--border-color); padding: 40px; text-align: center; margin-bottom: 40px; cursor: pointer; transition: 0.2s; border-radius: var(--radius-sm); }
         .upload-zone:hover { border-color: var(--accent-green); background: var(--bg-header); }
         #uploadText { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; letter-spacing: 0.5px; }
+
+        /* CARDS */
         .isa-bundle { background: var(--bg-panel); border: 1px solid var(--border-color); margin-bottom: 25px; border-radius: var(--radius-sm); }
         .isa-header { background: var(--bg-header); padding: 12px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
         .isa-info { display: flex; align-items: center; gap: 15px; }
         .isa-id { color: #fff; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; font-family: 'Inter', sans-serif; }
         .isa-time-badge { color: var(--accent-green); font-size: 0.85rem; font-weight: 600; background: rgba(46, 160, 67, 0.15); padding: 4px 8px; border-radius: var(--radius-sm); }
+        
         .carrier-edit { background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 6px; width: 140px; text-align: center; font-weight: 600; border-radius: var(--radius-sm); outline: none; font-family: 'Inter', sans-serif; }
         .carrier-edit:focus { border-color: var(--accent-green); }
+
         .mode-toggle { display: flex; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
         .mode-btn { border: none; padding: 6px 12px; cursor: pointer; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: transparent; font-family: 'Inter', sans-serif; }
         .mode-btn.active { background: #262626; color: #e0e0e0; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
         .mode-btn:hover:not(.active) { color: #fff; }
+
+        /* TABLE */
         .dispatch-table { width: 100%; border-collapse: collapse; }
         .dispatch-table th { text-align: left; padding: 10px 20px; border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
         .dispatch-table td { padding: 12px 20px; border-bottom: 1px solid var(--border-color); vertical-align: middle; color: var(--text-main); font-size: 0.9rem; }
         .dispatch-table tr:last-child td { border-bottom: none; }
+        
         .qty-input { width: 60px; text-align: center; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 6px; border-radius: var(--radius-sm); font-weight: 600; }
         .qty-input:focus { border-color: var(--accent-green); outline: none; }
         .po-input { width: 100px; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-muted); padding: 6px; border-radius: var(--radius-sm); font-size: 0.8rem; margin-right: 8px; }
         .po-input:focus { border-color: var(--accent-green); color: #fff; outline: none; }
+
         .tag { padding: 4px 8px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.7rem; letter-spacing: 0.5px;}
         .tag-single { color: var(--accent-blue); background: rgba(56, 139, 253, 0.15); border: 1px solid rgba(56, 139, 253, 0.4); }
         .tag-multi { color: #fbbf24; background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.4); }
         .tag-master { color: var(--accent-purple); background: rgba(188, 140, 255, 0.15); border: 1px solid rgba(188, 140, 255, 0.4); }
+        
         .btn-action-group { display: flex; gap: 10px; }
         .btn { border: none; padding: 8px 16px; cursor: pointer; font-weight: 600; font-size: 0.8rem; border-radius: var(--radius-sm); transition: 0.2s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Inter', sans-serif; }
         .btn-print-row { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); }
@@ -72,24 +101,19 @@
         .btn-print-all.printed { background: transparent; color: var(--accent-green); border-color: var(--accent-green); }
         .btn-delete { background: transparent; border: 1px solid var(--border-color); color: var(--accent-red); padding: 8px; justify-content: center; }
         .btn-delete:hover { background: rgba(218, 54, 51, 0.15); border-color: var(--accent-red); }
+
+        /* MODAL */
         #help-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; }
         .help-content { background: var(--bg-panel); padding: 30px; border: 1px solid var(--border-color); max-width: 500px; }
         .help-content h2 { margin-top: 0; color: #fff; font-size: 1.1rem; font-family: 'Inter', sans-serif; letter-spacing: 1px;}
         .help-key { color: var(--accent-green); font-weight: 600; display: block; margin-bottom: 5px; font-size: 0.85rem; text-transform: uppercase;}
         .help-val { color: var(--text-muted); margin-bottom: 20px; display: block; font-size: 0.9rem; }
         .btn-close { width: 100%; padding: 10px; background: var(--bg-header); color: #fff; border: 1px solid var(--border-color); cursor: pointer; font-weight: 600;}
-        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-app); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        #password-input { background: var(--bg-panel); width: 200px; text-align: center; border: 1px solid var(--accent-green); padding: 10px; font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-green); outline: none; margin-top: 20px;}
-        .hidden { display: none; }
+        
         .empty-state { text-align: center; padding: 60px; color: var(--text-muted); font-weight: 600; font-size: 1.2rem; border: 1px dashed var(--border-color); border-radius: var(--radius-sm);}
     </style>
 </head>
 <body>
-
-    <div id="lock-screen">
-        <div style="color: #fff; font-weight: 400; letter-spacing: 4px; font-family: 'Segoe UI', sans-serif; font-size: 1.5rem; text-transform: uppercase;">RP LABELTOOL</div>
-        <input type="password" id="password-input" placeholder="CODE" onkeyup="checkPass(event)">
-    </div>
 
     <div id="help-modal" onclick="document.getElementById('help-modal').style.display='none'">
         <div class="help-content" onclick="event.stopPropagation()">
@@ -102,9 +126,9 @@
         </div>
     </div>
 
-    <div id="app-content" class="hidden">
+    <div id="app-content">
         <div class="top-bar">
-            <h1>RP LABELTOOL v10.9</h1>
+            <h1>RP LABELTOOL v10.10</h1>
             <div style="display:flex; gap: 10px;">
                 <button class="btn-help" onclick="window.location.href='index.html'">BACK TO HUB</button>
                 <button class="btn-help" onclick="document.getElementById('help-modal').style.display='flex'">CONFIG</button>
@@ -131,31 +155,18 @@
     </div>
 
     <script>
-        const ACCESS_CODE = "WAREHOUSE"; 
         let ISA_GROUPS = {}; 
 
-        // AUTO-LOGIN CHECK
-        if(localStorage.getItem('rp_session') === 'active') {
-            document.getElementById('lock-screen').style.display = 'none';
-            document.getElementById('app-content').classList.remove('hidden');
+        // Load Header Preference
+        if(localStorage.getItem('rp_fallback')) {
+            document.getElementById('fallbackHeader').value = localStorage.getItem('rp_fallback');
         }
 
-        function checkPass(event) {
-            if (event.key === "Enter") {
-                if (document.getElementById('password-input').value === ACCESS_CODE) {
-                    localStorage.setItem('rp_session', 'active'); 
-                    document.getElementById('lock-screen').style.display = 'none';
-                    document.getElementById('app-content').classList.remove('hidden');
-                    if(localStorage.getItem('rp_fallback')) {
-                        document.getElementById('fallbackHeader').value = localStorage.getItem('rp_fallback');
-                    }
-                } else { alert("ACCESS_DENIED"); }
-            }
+        function saveHeader() {
+            localStorage.setItem('rp_fallback', document.getElementById('fallbackHeader').value);
         }
-        function saveHeader() { localStorage.setItem('rp_fallback', document.getElementById('fallbackHeader').value); }
-        
-        // ... (Remaining Logic for Formatting, Parsing, and Printing is identical to v10.8) ...
-        
+
+        // --- FILE HANDLING & PARSING (Same as v10.9) ---
         function formatShortDate(rawDate) {
             if (!rawDate) return "";
             if (typeof rawDate === 'number' && rawDate > 40000) {
@@ -231,13 +242,11 @@
                     let pCount = parseInt(r[6]); 
                     if(isNaN(pCount) || pCount < 1) pCount = 1;
                     totalPallets += pCount;
-                    
                     individualJobs.push({ type: 'A', isds: [r[3]], qty: pCount });
                 });
 
                 const count = groupRows.length;
                 let defaultJobs = [];
-                
                 if (count >= 2 && count <= 5) {
                     const bQty = totalPallets > 0 ? totalPallets : 1;
                     const bItems = groupRows.map(r => ({ isd: r[3], po: '' }));
@@ -270,7 +279,6 @@
 
             Object.keys(ISA_GROUPS).forEach(isaKey => {
                 const bundle = ISA_GROUPS[isaKey];
-                
                 const btnExpandedClass = bundle.mode === 'expanded' ? 'active' : '';
                 const btnCondensedClass = bundle.mode === 'condensed' ? 'active' : '';
 
@@ -295,7 +303,6 @@
                 `;
 
                 let rowsHtml = "";
-                
                 if (bundle.mode === 'expanded') {
                     bundle.jobs.forEach((job, idx) => {
                         let tag, content;
@@ -333,7 +340,6 @@
                         </tr>
                     `;
                 }
-
                 const section = document.createElement('div');
                 section.className = 'isa-bundle';
                 section.innerHTML = `${headerHtml}<table class="dispatch-table"><thead><tr><th>Type</th><th>Contents</th><th style="text-align:center">Qty</th><th></th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
