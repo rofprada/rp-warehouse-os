@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RP LABELGEN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-app: #0d1117; --bg-panel: #161b22; --bg-header: #21262d; --bg-input: #010409; --text-main: #c9d1d9; --text-muted: #8b949e; --accent-green: #2ea043; --accent-blue: #58a6ff; --accent-red: #da3633; --border-color: #30363d; --radius-sm: 4px; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); padding: 40px; max-width: 800px; margin: 0 auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        h1 { font-family: "Segoe UI Variable Display", sans-serif; font-weight: 400; font-size: 1.8rem; letter-spacing: 4px; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 15px; color: #fff; }
+        h1::before { content: ""; display: block; width: 6px; height: 28px; background: var(--accent-blue); }
+        .btn-nav { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
+        .btn-nav:hover { color: var(--text-main); border-color: var(--text-main); }
+        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 15px; background: var(--bg-panel); border: 1px solid var(--border-color); color: var(--text-muted); font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); transition: 0.2s; text-align: center; }
+        .tab-btn:hover { background: var(--bg-header); color: var(--text-main); }
+        .tab-btn.active { background: var(--bg-header); border-bottom: 3px solid var(--accent-blue); color: #fff; }
+        .form-card { background: var(--bg-panel); border: 1px solid var(--border-color); padding: 30px; border-radius: var(--radius-sm); display: none; }
+        .form-card.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
+        .input-field { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 12px; font-family: inherit; font-size: 1rem; border-radius: var(--radius-sm); box-sizing: border-box; }
+        .input-field:focus { border-color: var(--accent-blue); outline: none; }
+        .btn-print { width: 100%; background: var(--accent-blue); color: #000; border: none; padding: 15px; font-weight: 700; text-transform: uppercase; border-radius: var(--radius-sm); cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-print:hover { background: #79b8ff; }
+        .multi-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .multi-po { width: 30%; }
+        .multi-isd { width: 70%; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>RP LABELGEN</h1>
+        <button class="btn-nav" onclick="window.location.href='index.html'">BACK TO HUB</button>
+    </div>
+
+    <div class="tab-container">
+        <div class="tab-btn active" onclick="switchTab('A')">FORMAT A (Single)</div>
+        <div class="tab-btn" onclick="switchTab('B')">FORMAT B (Multi)</div>
+        <div class="tab-btn" onclick="switchTab('C')">FORMAT C (Free Text)</div>
+    </div>
+
+    <div id="form-A" class="form-card active">
+        <div class="input-group"><label>Header (Carrier)</label><input type="text" id="a-header" class="input-field" value="INBOUND"></div>
+        <div class="input-group"><label>Date (e.g., 21DEC)</label><input type="text" id="a-date" class="input-field" placeholder="DDMMM"></div>
+        <div class="input-group"><label>Shipment ID (Barcode Content)</label><input type="text" id="a-barcode" class="input-field" placeholder="SCAN OR TYPE..."></div>
+        <div class="input-group"><label>Quantity</label><input type="number" id="a-qty" class="input-field" value="1" min="1"></div>
+        <button class="btn-print" onclick="printA()">PRINT FORMAT A</button>
+    </div>
+
+    <div id="form-B" class="form-card">
+        <div class="input-group"><label>Header (Carrier)</label><input type="text" id="b-header" class="input-field" value="INBOUND"></div>
+        <div class="input-group"><label>Date</label><input type="text" id="b-date" class="input-field" placeholder="DDMMM"></div>
+        <div class="input-group"><label>Items (PO Number / ISD)</label><div id="multi-container">
+                <div class="multi-row"><input type="text" class="input-field multi-po" placeholder="PO#"><input type="text" class="input-field multi-isd" placeholder="ISD..."></div>
+                <div class="multi-row"><input type="text" class="input-field multi-po" placeholder="PO#"><input type="text" class="input-field multi-isd" placeholder="ISD..."></div>
+                <div class="multi-row"><input type="text" class="input-field multi-po" placeholder="PO#"><input type="text" class="input-field multi-isd" placeholder="ISD..."></div>
+                <div class="multi-row"><input type="text" class="input-field multi-po" placeholder="PO#"><input type="text" class="input-field multi-isd" placeholder="ISD..."></div>
+                <div class="multi-row"><input type="text" class="input-field multi-po" placeholder="PO#"><input type="text" class="input-field multi-isd" placeholder="ISD..."></div>
+            </div></div>
+        <div class="input-group"><label>Quantity</label><input type="number" id="b-qty" class="input-field" value="1" min="1"></div>
+        <button class="btn-print" onclick="printB()">PRINT FORMAT B</button>
+    </div>
+
+    <div id="form-C" class="form-card">
+        <div class="input-group"><label>Header</label><input type="text" id="c-header" class="input-field" value="NOTICE"></div>
+        <div class="input-group"><label>Line 1 (Large Text)</label><input type="text" id="c-line1" class="input-field" placeholder="MAIN MESSAGE"></div>
+        <div class="input-group"><label>Line 2 (Medium Text)</label><input type="text" id="c-line2" class="input-field" placeholder="Additional Details"></div>
+        <div class="input-group"><label>Line 3 (Small Text)</label><input type="text" id="c-line3" class="input-field" placeholder="Footer info..."></div>
+        <div class="input-group"><label>Quantity</label><input type="number" id="c-qty" class="input-field" value="1" min="1"></div>
+        <button class="btn-print" onclick="printC()">PRINT FORMAT C</button>
+    </div>
+
+    <script>
+        // --- AUTO DATE ---
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const d = new Date();
+        const todayStr = d.getDate() + months[d.getMonth()];
+        document.getElementById('a-date').value = todayStr;
+        document.getElementById('b-date').value = todayStr;
+        // --- TAB SWITCHER ---
+        function switchTab(tabId) { document.querySelectorAll('.form-card').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById('form-' + tabId).classList.add('active'); event.target.classList.add('active'); }
+        // --- PRINT FUNCTIONS ---
+        function printA() {
+            const header = document.getElementById('a-header').value.toUpperCase(); const date = document.getElementById('a-date').value.toUpperCase(); const barcode = document.getElementById('a-barcode').value.toUpperCase(); const qty = parseInt(document.getElementById('a-qty').value) || 1;
+            if(!barcode) return alert("Please enter a Shipment ID");
+            let zplList = []; for(let i=1; i<=qty; i++) { zplList.push(generateZPL_A(header, date, barcode, i, qty)); } launchPrintWindow(zplList);
+        }
+        function printB() {
+            const header = document.getElementById('b-header').value.toUpperCase(); const date = document.getElementById('b-date').value.toUpperCase(); const qty = parseInt(document.getElementById('b-qty').value) || 1;
+            const items = []; document.querySelectorAll('#multi-container .multi-row').forEach(row => { const po = row.querySelector('.multi-po').value.toUpperCase(); const isd = row.querySelector('.multi-isd').value.toUpperCase(); if(isd) items.push({po, isd}); });
+            if(items.length === 0) return alert("Please enter at least one item.");
+            let zplList = []; for(let i=1; i<=qty; i++) { zplList.push(generateZPL_B(header, date, items, i, qty)); } launchPrintWindow(zplList);
+        }
+        function printC() {
+            const header = document.getElementById('c-header').value.toUpperCase(); const l1 = document.getElementById('c-line1').value; const l2 = document.getElementById('c-line2').value; const l3 = document.getElementById('c-line3').value; const qty = parseInt(document.getElementById('c-qty').value) || 1;
+            let zplList = []; for(let i=1; i<=qty; i++) { zplList.push(generateZPL_C(header, l1, l2, l3)); } launchPrintWindow(zplList);
+        }
+        // --- ZPL GENERATORS ---
+        function generateZPL_A(header, date, barcode, current, total) { let fontSize = header.length > 10 ? 120 : 170; let charCount = String(barcode).length; let modW = 5; let bcW = (11 * charCount + 35) * modW; if(bcW > 1150) modW = 4; let startX = Math.floor((1218 - ((11 * charCount + 35) * modW)) / 2); if(startX < 0) startX = 0; return `^XA^PW1218^LL1800^FO0,50^FB1218,2,10,C,0^A0N,${fontSize},${fontSize}^FD${header}^FS^FO0,230^FB1218,1,0,C,0^A0N,180,180^FD${date}^FS^FO0,470^FB1218,1,0,C,0^A0N,40,40^FDSHIPMENT ID^FS^FO${startX},520^BY${modW},3,400^BCN,400,N,N,N^FD${barcode}^FS^FO0,940^FB1218,1,0,C,0^A0N,80,80^FD${barcode}^FS^FO0,1500^FB1218,1,0,C,0^A0N,180,180^FD${current} / ${total}^FS^XZ`; }
+        function generateZPL_B(header, date, items, current, total) { let fontSize = header.length > 10 ? 120 : 170; let zpl = `^XA^PW1218^LL1800^FO0,50^FB1218,2,10,C,0^A0N,${fontSize},${fontSize}^FD${header}^FS^FO0,230^FB1218,1,0,C,0^A0N,180,180^FD${date}^FS^FO50,450^A0N,50,50^FDPURCHASE ORDER:^FS^FO650,450^A0N,50,50^FDSHIPMENT ID:^FS`; let currentY = 510; items.forEach(item => { zpl += `^FO50,${currentY}^A0N,60,60^FD${item.po}^FS`; zpl += `^FO650,${currentY}^A0N,60,60^FD${item.isd}^FS^FO650,${currentY+60}^BY3,3,70^BCN,70,N,N,N^FD${item.isd}^FS`; currentY += 200; }); zpl += `^FO0,1550^FB1218,1,0,C,0^A0N,180,180^FD${current} / ${total}^FS^XZ`; return zpl; }
+        function generateZPL_C(header, l1, l2, l3) { return `^XA^PW1218^LL1200^FO0,50^FB1218,1,0,C,0^A0N,120,120^FD${header}^FS^FO0,250^FB1218,2,0,C,0^A0N,150,150^FD${l1}^FS^FO0,600^FB1218,2,0,C,0^A0N,100,100^FD${l2}^FS^FO0,900^FB1218,2,0,C,0^A0N,60,60^FD${l3}^FS^XZ`; }
+        function launchPrintWindow(zplList) { const w = 4; const h = 6; const urls = zplList.map(z => `http://api.labelary.com/v1/printers/12dpmm/labels/${w}x${h}/0/${encodeURIComponent(z)}`); const pWin = window.open('', '_blank', 'width=500,height=600'); if(!pWin) { alert("POPUP BLOCKED"); return; } pWin.document.open(); pWin.document.write(`<html><head><title>PRINTING...</title><style>@page{size:101.6mm 152.4mm;margin:0}body{margin:0;padding:0;background:#000;color:#0f0;font-family:monospace;text-align:center}.label-page{width:101.6mm;height:152.4mm;page-break-after:always;overflow:hidden;position:relative}img{width:100%;height:100%;display:block;object-fit:contain}@media print{body{background:none}#log{display:none}}</style></head><body><div id="log">RENDERING...</div><div id="con"></div><script>const urls=${JSON.stringify(urls)};const con=document.getElementById('con');let loaded=0;function loadNext(i){if(i>=urls.length){document.getElementById('log').innerText="DONE. OPENING PRINTER...";setTimeout(()=>{window.print();window.close()},500);return}const div=document.createElement('div');div.className='label-page';const img=document.createElement('img');img.src=urls[i];img.onload=()=>{div.appendChild(img);con.appendChild(div);loaded++;document.getElementById('log').innerText="RENDERED "+loaded+" / "+urls.length;loadNext(i+1)};img.onerror=()=>{setTimeout(()=>loadNext(i),1000)}}loadNext(0);<\/script></body></html>`); pWin.document.close(); }
+    </script>
+</body>
+</html>
