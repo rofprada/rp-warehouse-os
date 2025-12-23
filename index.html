@@ -3,125 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RP WAREHOUSE OS</title>
+    <title>RP SUITE HUB V2.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- RP SUITE THEME (Midnight Blue) --- */
         :root {
             --bg-app: #0d1117;       
             --bg-panel: #161b22;     
             --bg-header: #21262d;    
+            --bg-input: #010409;     
             --text-main: #c9d1d9;    
             --text-muted: #8b949e;   
-            --accent-green: #2ea043; 
+            --accent-green: #10b981; 
             --accent-blue: #58a6ff;
-            --accent-red: #da3633;
+            --accent-purple: #bc8cff;
             --border-color: #30363d; 
-            --radius-sm: 4px;
+            --radius-md: 12px; 
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); padding: 40px; max-width: 1200px; margin: 0 auto; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-app); 
+            color: var(--text-main); 
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
-        .suite-header { margin-bottom: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-        h1 { font-family: "Segoe UI Variable Display", "Segoe UI", sans-serif; font-weight: 400; font-size: 2rem; letter-spacing: 4px; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 15px; color: #fff; }
-        h1::before { content: ""; display: block; width: 6px; height: 32px; background: var(--accent-green); }
-        .user-badge { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: color 0.2s; }
-        .user-badge:hover { color: var(--accent-red); }
-        .status-dot { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green); }
+        /* LOCK SCREEN */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-app); z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(15px);
+        }
+        .lock-card {
+            background: var(--bg-panel); padding: 50px 40px; border-radius: var(--radius-md);
+            border: 1px solid var(--border-color); text-align: center; width: 340px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .lock-input {
+            width: 100%; background: #000; border: 1px solid var(--border-color);
+            color: var(--accent-green); font-size: 2.5rem; text-align: center;
+            padding: 15px; border-radius: 8px; letter-spacing: 15px; margin: 25px 0; outline: none;
+            transition: border-color 0.3s; box-sizing: border-box;
+        }
+        .lock-input:focus { border-color: var(--accent-green); }
 
-        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-        .app-card { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 30px; transition: all 0.2s ease; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; height: 180px; position: relative; overflow: hidden; }
-        .app-card:hover { border-color: var(--text-muted); transform: translateY(-2px); background: var(--bg-header); }
-        .card-icon { color: var(--text-main); margin-bottom: 15px; }
-        .card-title { color: #fff; font-size: 1.2rem; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 5px; text-transform: uppercase; }
-        .card-desc { color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
-        .card-status { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: var(--radius-sm); width: fit-content; margin-top: auto; }
-        .status-live { background: rgba(46, 160, 67, 0.15); color: var(--accent-green); }
-        .status-dev { background: rgba(56, 139, 253, 0.15); color: var(--accent-blue); }
-        .status-wip { background: rgba(139, 148, 158, 0.15); color: var(--text-muted); }
+        /* HUB CONTENT */
+        .hub-container {
+            max-width: 1200px;
+            width: 95%;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
 
-        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-app); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        #password-input { background: var(--bg-panel); width: 250px; text-align: center; border: 1px solid var(--accent-green); padding: 15px; font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-green); outline: none; margin-top: 20px;}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hub-header { margin-bottom: 50px; }
+
+        h1 { 
+            font-family: "Segoe UI Variable Display", sans-serif; 
+            font-weight: 400; font-size: 2.8rem; letter-spacing: 10px; 
+            text-transform: uppercase; margin: 0; color: #fff;
+        }
+        .header-accent { color: var(--accent-green); font-weight: 800; }
+
+        /* APP GRID */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .app-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 35px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            position: relative;
+        }
+
+        .app-card:hover {
+            border-color: var(--accent-blue);
+            background: #1c2128;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .app-icon {
+            width: 48px; height: 48px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        /* Themed Colors */
+        .labelbatch .app-icon { color: var(--accent-green); }
+        .labelgen .app-icon { color: var(--accent-purple); }
+        .floorplanner .app-icon { color: var(--accent-blue); }
+
+        .app-title { 
+            font-size: 1.4rem; 
+            font-weight: 800; 
+            letter-spacing: 1px; 
+            text-transform: uppercase; 
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .app-desc { 
+            font-size: 0.9rem; 
+            color: var(--text-muted); 
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Status Badges */
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .badge::before {
+            content: "●";
+            font-size: 0.6rem;
+        }
+        .badge-live { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
+        .badge-v1 { background: rgba(88, 166, 255, 0.1); color: var(--accent-blue); }
+
+        .status-bar {
+            position: fixed; bottom: 30px; font-size: 0.7rem;
+            color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase;
+        }
     </style>
 </head>
-<body>
+<body onmousemove="resetIdleTimer()" onkeydown="resetIdleTimer()">
+
     <div id="lock-screen">
-        <div style="color: #fff; font-weight: 400; letter-spacing: 4px; font-family: 'Segoe UI', sans-serif; font-size: 1.5rem; text-transform: uppercase;">RP WAREHOUSE OS</div>
-        <input type="password" id="password-input" placeholder="ACCESS CODE" onkeyup="checkPass(event)">
+        <div class="lock-card">
+            <h2 style="color:#fff; margin:0; letter-spacing:5px; font-weight:400;">RP SUITE</h2>
+            <p style="color:var(--text-muted); font-size:0.65rem; text-transform:uppercase; margin-top:12px; letter-spacing:2px;">Authorization Required</p>
+            <input type="password" id="accessInput" class="lock-input" maxlength="4" placeholder="••••">
+            <button onclick="unlockHub()" style="width:100%; background:var(--accent-green); border:none; padding:16px; color:#000; font-weight:800; border-radius:6px; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">Access Dashboard</button>
+        </div>
     </div>
 
-    <div id="app-content" style="display:none;">
-        <header class="suite-header">
-            <h1>RP WAREHOUSE OS</h1>
-            <div class="user-badge" onclick="logout()" title="Click to Logout">
-                <div class="status-dot"></div>
-                SYSTEM ONLINE
-            </div>
-        </header>
+    <div class="hub-container" id="hubContent">
+        <div class="hub-header">
+            <h1>RP<span class="header-accent">SUITE</span></h1>
+            <p style="color:var(--text-muted); font-size:0.85rem; letter-spacing:4px; text-transform:uppercase; margin-top:12px;">Operations Command Center</p>
+        </div>
 
         <div class="app-grid">
-            <a href="label-batch.html" class="app-card">
-                <div>
-                    <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
-                    <div class="card-title">LabelBatch</div>
-                    <div class="card-desc">Import Dockmaster schedules (CSV/XLSX) to generate bulk labels.</div>
+            <a href="LABELBATCH.html" class="app-card labelbatch">
+                <div class="app-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h4"/></svg>
                 </div>
-                <div class="card-status status-live">● LIVE</div>
+                <div class="app-title">LabelBatch</div>
+                <div class="app-desc">Bulk inbound scheduling, ZPL generation, and A4 Satchel manifest printing.</div>
+                <div class="badge badge-live">Live</div>
             </a>
 
-            <a href="label-gen.html" class="app-card">
-                <div>
-                    <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></div>
-                    <div class="card-title">LabelGen</div>
-                    <div class="card-desc">Manual creation. Format A (Single), B (Multi), and C (Free Text).</div>
+            <a href="LABELGEN.html" class="app-card labelgen">
+                <div class="app-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </div>
-                <div class="card-status status-live">● LIVE</div>
+                <div class="app-title">LabelGen</div>
+                <div class="app-desc">Manual creation. Format A (Single), B (Multi), and C (Free Text).</div>
+                <div class="badge badge-live" style="color: var(--accent-purple); background: rgba(188, 140, 255, 0.1);">Live</div>
             </a>
 
-            <a href="floor-planner.html" class="app-card">
-                <div>
-                    <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                    <div class="card-title">FloorPlanner</div>
-                    <div class="card-desc">Map pallet locations and manage floor capacity.</div>
+            <a href="FLOORPLANNER.html" class="app-card floorplanner">
+                <div class="app-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </div>
-                <div class="card-status status-dev">● V1.0</div>
-            </a>
-
-            <a href="#" class="app-card" style="opacity: 0.6; cursor: not-allowed;">
-                <div>
-                    <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-                    <div class="card-title">Team Roster</div>
-                    <div class="card-desc">Shift planning and allocation for the inbound team.</div>
-                </div>
-                <div class="card-status status-wip">PLANNED</div>
+                <div class="app-title">FloorPlanner</div>
+                <div class="app-desc">Map pallet locations and manage floor capacity.</div>
+                <div class="badge badge-v1">V1.0</div>
             </a>
         </div>
     </div>
 
+    <div class="status-bar" id="statusBar">Secure Session // Inactivity Lock: 30m</div>
+
     <script>
-        const ACCESS_CODE = "IB2025"; 
-        if(localStorage.getItem('rp_session') === 'active') {
-            document.getElementById('lock-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-        }
-        function checkPass(event) {
-            if (event.key === "Enter") {
-                if (document.getElementById('password-input').value === ACCESS_CODE) {
-                    localStorage.setItem('rp_session', 'active'); 
-                    document.getElementById('lock-screen').style.display = 'none';
-                    document.getElementById('app-content').style.display = 'block';
-                } else { alert("ACCESS DENIED"); }
+        const ACCESS_CODE = "1234"; 
+        let isLocked = true;
+        let idleTimer;
+        const IDLE_LIMIT = 30 * 60 * 1000; 
+
+        function unlockHub() {
+            const input = document.getElementById('accessInput');
+            if (input.value === ACCESS_CODE) {
+                isLocked = false;
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('hubContent').style.display = 'block';
+                input.value = "";
+                resetIdleTimer();
+            } else {
+                alert("ACCESS DENIED");
+                input.value = "";
+                input.focus();
             }
         }
-        function logout() {
-            if(confirm("Logout of RP OS?")) {
-                localStorage.removeItem('rp_session');
-                location.reload();
-            }
+
+        function lockHub() {
+            isLocked = true;
+            document.getElementById('lock-screen').style.display = 'flex';
+            document.getElementById('hubContent').style.display = 'none';
+            document.getElementById('accessInput').focus();
         }
+
+        function resetIdleTimer() {
+            if (isLocked) return;
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(lockHub, IDLE_LIMIT);
+        }
+
+        document.getElementById('accessInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') unlockHub();
+        });
+
+        window.onload = () => document.getElementById('accessInput').focus();
     </script>
 </body>
 </html>
