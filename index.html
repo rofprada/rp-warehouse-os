@@ -3,95 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RP SUITE HUB V2.1</title>
+    <title>RP LOGISTICS HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-app: #0d1117; --bg-panel: #161b22; --bg-header: #21262d; 
-            --text-main: #c9d1d9; --text-muted: #8b949e; --accent-green: #10b981; 
-            --accent-blue: #58a6ff; --accent-purple: #bc8cff; --border-color: #30363d; 
-            --radius-md: 12px; 
-        }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
-        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-app); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .lock-card { background: var(--bg-panel); padding: 50px 40px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; width: 340px; box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
-        .lock-input { width: 100%; background: #000; border: 1px solid var(--border-color); color: var(--accent-green); font-size: 2.5rem; text-align: center; padding: 15px; border-radius: 8px; letter-spacing: 15px; margin: 25px 0; outline: none; transition: border-color 0.3s; box-sizing: border-box; }
-        .lock-input:focus { border-color: var(--accent-green); }
-        .hub-container { max-width: 1200px; width: 95%; text-align: center; display: none; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .hub-header { margin-bottom: 50px; }
-        h1 { font-family: "Segoe UI Variable Display", sans-serif; font-weight: 400; font-size: 2.8rem; letter-spacing: 10px; text-transform: uppercase; margin: 0; color: #fff; }
-        .header-accent { color: var(--accent-green); font-weight: 800; }
-        .app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-top: 20px; }
-        .app-card { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; padding: 35px; text-decoration: none; color: inherit; transition: all 0.25s ease; display: flex; flex-direction: column; align-items: flex-start; text-align: left; position: relative; }
-        .app-card:hover { border-color: var(--accent-blue); background: #1c2128; transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
-        .app-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 25px; }
-        .labelbatch .app-icon { color: var(--accent-green); }
-        .labelgen .app-icon { color: var(--accent-purple); }
-        .floorplanner .app-icon { color: var(--accent-blue); }
-        .app-title { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; color: #fff; }
-        .app-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; }
-        .badge { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px; }
-        .badge::before { content: "●"; font-size: 0.6rem; }
-        .badge-live { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
-        .badge-v1 { background: rgba(88, 166, 255, 0.1); color: var(--accent-blue); }
-        .status-bar { position: fixed; bottom: 30px; font-size: 0.7rem; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; }
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .hub-card { background: #161b22; border: 1px solid #30363d; transition: 0.2s; cursor: pointer; }
+        .hub-card:hover { border-color: #58a6ff; transform: translateY(-2px); }
+        #auth-screen { position: fixed; inset: 0; background: #0d1117; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .hidden-content { display: none; }
     </style>
 </head>
-<body onmousemove="resetIdleTimer()" onkeydown="resetIdleTimer()">
-    <div id="lock-screen">
-        <div class="lock-card">
-            <h2 style="color:#fff; margin:0; letter-spacing:5px; font-weight:400;">RP SUITE</h2>
-            <p style="color:var(--text-muted); font-size:0.65rem; text-transform:uppercase; margin-top:12px; letter-spacing:2px;">Authorization Required</p>
-            <input type="password" id="accessInput" class="lock-input" maxlength="4" placeholder="••••">
-            <button onclick="unlockHub()" style="width:100%; background:var(--accent-green); border:none; padding:16px; color:#000; font-weight:800; border-radius:6px; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">Access Dashboard</button>
+<body onload="checkAuth()">
+
+    <div id="auth-screen">
+        <div class="w-80 text-center">
+            <h1 class="text-white font-black tracking-widest mb-6 text-sm">SECURITY ACCESS</h1>
+            <input type="password" id="access-code" class="w-full bg-black border border-[#30363d] p-4 rounded text-center text-white mb-4" placeholder="Enter Code">
+            <button onclick="validate()" class="w-full py-3 bg-[#58a6ff] text-black font-black rounded uppercase text-xs">Verify Identity</button>
         </div>
     </div>
-    <div class="hub-container" id="hubContent">
-        <div class="hub-header">
-            <h1>RP<span class="header-accent">SUITE</span></h1>
-            <p style="color:var(--text-muted); font-size:0.85rem; letter-spacing:4px; text-transform:uppercase; margin-top:12px;">Operations Command Center</p>
-        </div>
-        <div class="app-grid">
-            <a href="labelbatch.html" class="app-card labelbatch">
-                <div class="app-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h4"/></svg></div>
-                <div class="app-title">LabelBatch</div>
-                <div class="app-desc">Bulk inbound scheduling, ZPL generation, and A4 Satchel manifest printing.</div>
-                <div class="badge badge-live">Live</div>
-            </a>
-            <a href="labelgen.html" class="app-card labelgen">
-                <div class="app-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-                <div class="app-title">LabelGen</div>
-                <div class="app-desc">Manual creation. Format A (Single), B (Multi), and C (Free Text).</div>
-                <div class="badge badge-live" style="color: var(--accent-purple); background: rgba(188, 140, 255, 0.1);">Live</div>
-            </a>
-            <a href="floorplanner.html" class="app-card floorplanner">
-                <div class="app-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-                <div class="app-title">FloorPlanner</div>
-                <div class="app-desc">Map pallet locations and manage floor capacity.</div>
-                <div class="badge badge-v1">V1.0</div>
-            </a>
+
+    <div id="main-content" class="hidden-content min-h-screen p-10">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-xs font-black text-[#58a6ff] tracking-[0.2em] uppercase mb-2">Operational</h2>
+                    <h1 class="text-4xl font-black text-white tracking-tighter">RP HUB V1.1</h1>
+                </div>
+                <button onclick="lockHub()" class="text-[10px] font-black text-gray-500 border border-gray-800 px-4 py-2 rounded hover:text-red-500 transition">LOCK SESSION</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div onclick="window.location.href='floorplanner.html'" class="hub-card p-8 rounded-2xl">
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="text-emerald-500" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 3v18"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-black text-white mb-2">FLOORPLANNER V5.0</h3>
+                    <p class="text-sm text-gray-500 font-medium leading-relaxed">Dynamic warehouse staging, partial drop logic, and manifest audit engine.</p>
+                </div>
+
+                <div class="hub-card p-8 rounded-2xl opacity-40 cursor-not-allowed">
+                    <div class="w-12 h-12 bg-gray-500/10 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="text-gray-500" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-black text-gray-500 mb-2">ADD MODULE</h3>
+                    <p class="text-sm text-gray-600 font-medium">Coming Soon: Driver check-in and inventory reporting.</p>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="status-bar" id="statusBar">Secure Session // Inactivity Lock: 30m</div>
+
     <script>
-        const ACCESS_CODE = "1234"; 
-        let isLocked = true, idleTimer;
-        const IDLE_LIMIT = 30 * 60 * 1000; 
-        function unlockHub() {
-            const input = document.getElementById('accessInput');
-            if (input.value === ACCESS_CODE) {
-                isLocked = false;
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('hubContent').style.display = 'block';
-                input.value = ""; resetIdleTimer();
-            } else { alert("ACCESS DENIED"); input.value = ""; input.focus(); }
+        const SECRET = "1234"; // Replace with your desired code
+
+        function checkAuth() {
+            const isAuthorized = localStorage.getItem('rp_hub_session');
+            if (isAuthorized === "active") {
+                revealContent();
+            }
         }
-        function lockHub() { isLocked = true; document.getElementById('lock-screen').style.display = 'flex'; document.getElementById('hubContent').style.display = 'none'; document.getElementById('accessInput').focus(); }
-        function resetIdleTimer() { if (isLocked) return; clearTimeout(idleTimer); idleTimer = setTimeout(lockHub, IDLE_LIMIT); }
-        document.getElementById('accessInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') unlockHub(); });
-        window.onload = () => document.getElementById('accessInput').focus();
+
+        function validate() {
+            const input = document.getElementById('access-code').value;
+            if (input === SECRET) {
+                localStorage.setItem('rp_hub_session', 'active');
+                revealContent();
+            } else {
+                alert("ACCESS DENIED");
+                document.getElementById('access-code').value = '';
+            }
+        }
+
+        function revealContent() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-content').classList.remove('hidden-content');
+        }
+
+        function lockHub() {
+            localStorage.removeItem('rp_hub_session');
+            window.location.reload();
+        }
     </script>
 </body>
 </html>
