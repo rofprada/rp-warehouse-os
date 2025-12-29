@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RP FLOORPLANNER V5.0</title>
+    <title>RP FLOORPLANNER V5.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,33 +43,29 @@
         .handle-tray { position: absolute; top: 4px; left: 4px; z-index: 700; display: flex; gap: 4px; }
         .h-btn { width: 22px; height: 22px; background: rgba(0,0,0,0.75); border-radius: 3px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
         
-        /* UPDATED: WHOLE WORD CARRIER STYLE */
-        .p-carrier { 
-            font-weight: 900; text-align: center; width: 96%; text-transform: uppercase; 
-            line-height: 1; margin-bottom: 2px; pointer-events: none;
-            white-space: nowrap; overflow: visible; /* Eliptical restriction removed */
-        }
+        .p-carrier { font-weight: 900; text-align: center; width: 90%; padding: 0 4px; text-transform: uppercase; line-height: 1; margin-bottom: 2px; pointer-events: none; white-space: nowrap; overflow: visible; }
         .p-qty { font-size: 10px; font-weight: 900; line-height: 1; margin: 2px 0; pointer-events: none; opacity: 0.9; }
         .p-date { font-size: 9px; font-weight: 800; background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 2px; margin-top: auto; margin-bottom: 6px; pointer-events: none; opacity: 0.7; }
-
-        .audit-grid { display: grid; grid-template-columns: 80px 250px 1fr 100px 100px 150px; align-items: center; border-bottom: 1px solid #30363d; }
-        .audit-header { background: #21262d; position: sticky; top: 0; z-index: 100; padding: 12px 0; font-size: 11px; font-weight: 900; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
-        .isa-row { background: #161b22; padding: 10px 0; }
-        .isd-row { padding: 8px 0; font-size: 13px; border-bottom: 1px solid #161b22; }
-        .live-input { background: rgba(0,0,0,0.4); border: 1px solid #30363d; color: var(--accent-blue); font-weight: 900; font-size: 13px; text-transform: uppercase; width: 95%; padding: 8px; border-radius: 4px; }
-        .btn-toggle { width: 34px; height: 34px; background: var(--accent-blue); color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; margin-left: 20px; }
-        .btn-detach { color: var(--accent-red); font-size: 11px; font-weight: 400; border: 1px solid rgba(248,81,73,0.3); padding: 5px 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .modal.active { display: flex; }
         .modal-content { background: var(--bg-panel); border: 1px solid #30363d; width: 440px; padding: 30px; border-radius: 12px; }
         .mode-btn { flex: 1; padding: 14px 4px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; }
         .mode-btn.active { background: var(--accent-blue) !important; color: #000 !important; border: none !important; }
+
+        /* [Other Styles Preserved] */
+        .audit-grid { display: grid; grid-template-columns: 80px 250px 1fr 100px 100px 150px; align-items: center; border-bottom: 1px solid #30363d; }
+        .audit-header { background: #21262d; position: sticky; top: 0; z-index: 100; padding: 12px 0; font-size: 11px; font-weight: 900; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
+        .isa-row { background: #161b22; padding: 10px 0; }
+        .isd-row { padding: 8px 0; font-size: 13px; border-bottom: 1px solid #161b22; }
+        .live-input { background: rgba(0,0,0,0.4); border: 1px solid #30363d; color: var(--accent-blue); font-weight: 900; font-size: 13px; text-transform: uppercase; width: 95%; padding: 8px; border-radius: 4px; }
+        .btn-toggle { width: 34px; height: 34px; background: var(--accent-blue); color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; margin-left: 20px; }
+        .btn-detach { color: var(--accent-red); font-size: 11px; font-weight: 400; border: 1px solid rgba(248, 81, 73, 0.3); padding: 5px 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body onload="init()">
     <div class="top-bar">
-        <h1>RP FLOORPLANNER V5.0</h1>
+        <h1>RP FLOORPLANNER V5.2</h1>
         <div class="flex gap-2">
             <button onclick="switchView('grid')" id="btn-grid" class="btn-nav btn-active">GRID VIEW</button>
             <button onclick="switchView('manifest')" id="btn-manifest" class="btn-nav">AUDIT</button>
@@ -131,7 +127,12 @@
                 </div>
                 <div><label class="text-[10px] font-black text-gray-500 uppercase">Reference ID</label><input type="text" id="in-id" class="w-full bg-black border border-gray-700 p-3 rounded text-white"></div>
             </div>
-            <div class="flex gap-2 mt-8"><button onclick="commitPlacement()" class="flex-1 py-4 bg-accent-green text-black font-black rounded uppercase text-xs">Drop Formation</button><button onclick="delPallet()" id="btn-del" class="flex-1 py-4 bg-accent-red text-white font-black rounded uppercase text-xs">Delete</button><button onclick="closeModal()" class="flex-1 py-4 border border-[#30363d] font-bold rounded uppercase text-xs">Cancel</button></div>
+            <div class="flex gap-2 mt-8">
+                <button onclick="commitPlacement()" class="flex-1 py-4 bg-accent-green text-black font-black rounded uppercase text-xs" id="btn-drop">Drop Formation</button>
+                <button onclick="reLayoutCurrentGroup()" class="flex-1 py-4 bg-accent-cyan text-black font-black rounded uppercase text-xs" id="btn-relayout" style="display:none">Update Mode</button>
+                <button onclick="delPallet()" id="btn-del" class="flex-1 py-4 bg-accent-red text-white font-black rounded uppercase text-xs">Delete</button>
+                <button onclick="closeModal()" class="flex-1 py-4 border border-[#30363d] font-bold rounded uppercase text-xs">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -142,8 +143,8 @@
         const ROWS = 140, COLS = 12, UNIT = 60, COL_NAMES = ["L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"];
 
         function init() { load(); buildGrid(); render(); }
-        function load() { const s = localStorage.getItem('rp_v50'); if(s) warehouseData = JSON.parse(s); }
-        function save() { localStorage.setItem('rp_v50', JSON.stringify(warehouseData)); }
+        function load() { const s = localStorage.getItem('rp_v52'); if(s) warehouseData = JSON.parse(s); }
+        function save() { localStorage.setItem('rp_v52', JSON.stringify(warehouseData)); }
 
         function buildGrid() {
             const h = document.getElementById('coord-header'), r = document.getElementById('row-labels'), c = document.getElementById('grid-canvas');
@@ -166,17 +167,9 @@
                 const groupPallets = warehouseData.pallets.filter(item => item.id === p.id);
                 const sequenceNum = groupPallets.indexOf(p) + 1;
                 const totalInGroup = GROUPS[p.id] ? GROUPS[p.id].total : groupPallets.length;
-                
-                // REFINED WHOLE WORD SCALING ENGINE (V5.0)
                 const cName = p.carrier || 'MANUAL';
-                let fs = 22; 
-                let ls = -1.5; // Default letter spacing (tight)
-
-                if (cName.length > 7) {
-                    fs = Math.max(12, 22 - (cName.length - 7) * 1.2); 
-                    ls = Math.max(-2, -1.5 - (cName.length - 7) * 0.1); // Condense spacing for long names
-                }
-
+                let fs = 22, ls = -1.5;
+                if (cName.length > 7) { fs = Math.max(12, 22 - (cName.length - 7) * 1.2); ls = Math.max(-2, -1.5 - (cName.length - 7) * 0.1); }
                 const b = document.createElement('div');
                 b.className = `pallet-block ${p.qty > 1 ? 'high-stack' : 'occupied'} ${isS ? 'is-selected' : ''}`;
                 b.id = `plt-${idx}`; b.style.left = `${(p.c-1) * UNIT + 1}px`; b.style.top = `${(p.r-1) * UNIT + 1}px`;
@@ -193,6 +186,37 @@
                 layer.appendChild(b);
             });
             if(document.getElementById('view-manifest').style.display !== 'none') renderAudit();
+        }
+
+        /* NEW FEATURE: DYNAMIC RE-LAYOUT LOGIC */
+        function reLayoutCurrentGroup() {
+            const p = warehouseData.pallets[editIdx];
+            const groupId = p.id;
+            const groupCarrier = p.carrier;
+            const groupDate = p.date;
+            const groupTotal = GROUPS[groupId].total;
+            const startLoc = { r: p.r, c: p.c };
+
+            // 1. Remove entire group from floor
+            warehouseData.pallets = warehouseData.pallets.filter(item => item.id !== groupId);
+            
+            // 2. Re-staged with current opMode logic
+            let droppedCount = 0, vStep = 2, validCols = [11, 9, 7, 5, 3];
+            if(opMode === 'buffer' || opMode === 'breakdown') { vStep = (opMode === 'buffer') ? 3 : 6; validCols = [11, 8, 5, 2]; }
+            
+            let r = startLoc.r;
+            while (droppedCount < groupTotal && r <= ROWS - 1) {
+                for (let c of validCols) {
+                    if (droppedCount >= groupTotal) break;
+                    if (r === startLoc.r && c > startLoc.c) continue;
+                    if (!isOcc(r, c)) { 
+                        warehouseData.pallets.push({ r, c, qty: 1, carrier: groupCarrier, id: groupId, date: groupDate }); 
+                        droppedCount++; 
+                    }
+                }
+                r += vStep;
+            }
+            save(); closeModal(); render();
         }
 
         function renderAudit() {
@@ -213,14 +237,11 @@
         function commitPlacement() {
             const qRequested = parseInt(document.getElementById('in-qty').value)||1, car = document.getElementById('in-carrier').value, id = document.getElementById('in-id').value;
             const dropDate = new Date().toLocaleDateString('en-GB');
-
             if(editIdx !== null) { warehouseData.pallets[editIdx] = {...warehouseData.pallets[editIdx], carrier: car, id}; }
             else {
                 const existingCount = warehouseData.pallets.filter(p => p.id === id).length;
                 const remainingToDrop = qRequested - existingCount;
                 if (remainingToDrop <= 0) { alert(`ALL PALLETS PLACED. \n\nShipment ID: ${id} \nTotal: ${qRequested} \nFloor: ${existingCount}`); return; }
-                if (existingCount > 0) { alert(`Partial shipment already staged. Dropping remaining balance. \n\nCurrently Staged: ${existingCount} \nRemaining to Drop: ${remainingToDrop}`); }
-
                 let droppedCount = 0, vStep = 2, validCols = [11, 9, 7, 5, 3];
                 if(opMode === 'buffer' || opMode === 'breakdown') { vStep = (opMode === 'buffer') ? 3 : 6; validCols = [11, 8, 5, 2]; }
                 let r = activeLoc.r;
@@ -242,9 +263,21 @@
         function syncIsdC(isa, isd, val) { GROUPS[isa].isds[isd].carrier = val.toUpperCase(); }
         function detach(isaId, isdId) { const p = GROUPS[isaId], d = p.isds[isdId]; GROUPS[isdId] = { carrier: d.carrier + " (IND)", total: d.qty, units: d.units, isds: {[isdId]: d}, open: false }; p.total -= d.qty; delete p.isds[isdId]; if(p.total <= 0) delete GROUPS[isaId]; renderAudit(); updatePicker(); }
         function handleCSV(input) { const fr = new FileReader(); fr.onload = (e) => { const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'}); const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1}); GROUPS = {}; for(let i=1; i<rows.length; i++) { const l = rows[i]; if(!l || !l[2]) continue; const isa = String(l[2]), isd = String(l[3]), carrier = String(l[4]).toUpperCase(), qty = parseInt(l[6])||1; if(!GROUPS[isa]) GROUPS[isa] = { carrier, total: 0, units: 0, isds: {}, open: false }; GROUPS[isa].total += qty; GROUPS[isa].units += parseInt(l[7])||0; GROUPS[isa].isds[isd] = { carrier, qty, units: parseInt(l[7])||0 }; } updatePicker(); switchView('manifest'); }; fr.readAsArrayBuffer(input.files[0]); }
-        function handleGridClick(r, c) { let tC = (c === COLS) ? COLS - 1 : c, tR = (r === ROWS) ? ROWS - 1 : r; if(isOcc(tR, tC)) return; activeLoc = { r: tR, c: tC }; editIdx = null; document.getElementById('modal-title').textContent = `Loc: ${COL_NAMES[tC-1]}${tR}`; document.getElementById('edit-modal').classList.add('active'); updatePicker(); }
+        function handleGridClick(r, c) { let tC = (c === COLS) ? COLS - 1 : c, tR = (r === ROWS) ? ROWS - 1 : r; if(isOcc(tR, tC)) return; activeLoc = { r: tR, c: tC }; editIdx = null; document.getElementById('modal-title').textContent = `Loc: ${COL_NAMES[tC-1]}${tR}`; document.getElementById('btn-drop').style.display = 'block'; document.getElementById('btn-relayout').style.display = 'none'; document.getElementById('edit-modal').classList.add('active'); updatePicker(); }
         function isOcc(r, c, ignore = []) { return warehouseData.pallets.some((p, i) => { if(ignore.includes(i)) return false; return !(r + 1 < p.r || r > p.r + 1 || c + 1 < p.c || c > p.c + 1); }); }
-        function openEdit(idx) { editIdx = idx; const p = warehouseData.pallets[idx]; document.getElementById('modal-title').textContent = `Edit Loc: ${COL_NAMES[p.c-1]}${p.r}`; document.getElementById('in-qty').value = p.qty; document.getElementById('in-carrier').value = p.carrier; document.getElementById('in-id').value = p.id || ''; document.getElementById('edit-modal').classList.add('active'); }
+        
+        function openEdit(idx) { 
+            editIdx = idx; 
+            const p = warehouseData.pallets[idx]; 
+            document.getElementById('modal-title').textContent = `Manage Shipment: ${p.id}`; 
+            document.getElementById('in-qty').value = GROUPS[p.id] ? GROUPS[p.id].total : 1; 
+            document.getElementById('in-carrier').value = p.carrier; 
+            document.getElementById('in-id').value = p.id || ''; 
+            document.getElementById('btn-drop').style.display = 'none'; 
+            document.getElementById('btn-relayout').style.display = 'block'; 
+            document.getElementById('edit-modal').classList.add('active'); 
+        }
+
         function closeModal() { document.getElementById('edit-modal').classList.remove('active'); }
         function switchView(v) { document.querySelectorAll('.section-view').forEach(s => s.style.display = 'none'); document.getElementById('view-' + v).style.display = 'block'; document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('btn-active')); document.getElementById('btn-' + v).classList.add('btn-active'); if(v==='manifest') renderAudit(); }
         function updatePicker() { const p = document.getElementById('shipment-picker'); p.innerHTML = '<option value="">-- MANUAL --</option>'; Object.keys(GROUPS).forEach(id => p.innerHTML += `<option value="${id}">${GROUPS[id].carrier} | ${id}</option>`); document.getElementById('picker-area').style.display = Object.keys(GROUPS).length > 0 ? 'block' : 'none'; }
