@@ -3,69 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RP LOGISTICS HUB</title>
+    <title>RP LOGISTICS HUB V2.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
-        .hub-card { background: #161b22; border: 1px solid #30363d; transition: 0.2s; cursor: pointer; display: flex; flex-direction: column; height: 100%; }
-        .hub-card:hover { border-color: #58a6ff; transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .hub-card { background: #161b22; border: 1px solid #30363d; transition: 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .hub-card:hover { border-color: #58a6ff; transform: translateY(-2px); }
+        .hub-card:hover .card-icon { color: #58a6ff; }
         #auth-screen { position: fixed; inset: 0; background: #0d1117; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .hidden-content { display: none; }
-        .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
     </style>
 </head>
-<body onload="checkAuth()">
+<body onload="checkAuth()" onmousemove="resetTimer()" onkeydown="resetTimer()" onclick="resetTimer()">
 
     <div id="auth-screen">
         <div class="w-80 text-center">
-            <h1 class="text-white font-black tracking-widest mb-6 text-sm uppercase">Secure Gateway</h1>
-            <input type="password" id="access-code" class="w-full bg-black border border-[#30363d] p-4 rounded-xl text-center text-white mb-4 focus:border-blue-500 outline-none transition" placeholder="ENTER ACCESS CODE">
-            <button onclick="validate()" class="w-full py-4 bg-[#58a6ff] text-black font-black rounded-xl uppercase text-xs tracking-widest hover:bg-blue-400 transition">Authorize Session</button>
+            <h1 class="text-white font-black tracking-widest mb-6 text-sm uppercase">Security Access</h1>
+            <input type="password" id="access-code" class="w-full bg-black border border-[#30363d] p-4 rounded text-center text-white mb-4 outline-none focus:border-[#58a6ff]" placeholder="Enter Code">
+            <button onclick="validate()" class="w-full py-3 bg-[#58a6ff] text-black font-black rounded uppercase text-xs hover:bg-blue-400 transition">Verify Identity</button>
+            <p id="timeout-msg" class="text-[10px] text-red-500 mt-4 uppercase font-bold tracking-widest hidden">Session expired due to inactivity</p>
         </div>
     </div>
 
-    <div id="main-content" class="hidden-content min-h-screen p-6 md:p-12">
+    <div id="main-content" class="hidden-content min-h-screen p-10">
         <div class="max-w-6xl mx-auto">
-            <div class="flex justify-between items-end mb-16">
+            
+            <div class="flex justify-between items-end mb-12 border-b border-gray-800 pb-8">
                 <div>
-                    <h2 class="text-xs font-black text-[#58a6ff] tracking-[0.3em] uppercase mb-3">Operational Command</h2>
-                    <h1 class="text-5xl font-black text-white tracking-tighter">RP HUB V1.2</h1>
+                    <h1 class="text-4xl font-black text-white tracking-tighter">RP HUB <span class="text-gray-600 text-2xl font-light">V2.4</span></h1>
                 </div>
-                <button onclick="lockHub()" class="text-[10px] font-black text-gray-500 border border-gray-800 px-6 py-3 rounded-lg hover:text-red-500 hover:border-red-500/30 transition uppercase tracking-widest">Lock Hub</button>
+                <div class="flex items-center gap-6">
+                    <button onclick="lockHub()" class="text-[10px] font-black text-gray-400 border border-gray-800 px-4 py-2 rounded hover:text-red-500 hover:border-red-500 transition uppercase tracking-widest">Lock Session</button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 
-                <div onclick="window.location.href='floorplanner.html'" class="hub-card p-8 rounded-2xl">
-                    <div class="icon-box bg-emerald-500/10"><svg class="text-emerald-500" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 3v18"></path></svg></div>
-                    <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">Floorplanner V5.0</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Dynamic warehouse staging, partial drop logic, and manifest audit engine.</p>
+                <div onclick="window.location.href='floorplanner.html'" class="hub-card p-8 rounded-2xl group">
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-6 transition group-hover:bg-emerald-500/20">
+                        <svg class="text-emerald-500 card-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 3v18"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">Floorplanner</h3>
+                    <p class="text-sm text-gray-500 font-medium leading-relaxed">Warehouse staging, manifest drops, and active stowage lifecycle tracking.</p>
                 </div>
 
-                <div onclick="window.location.href='tracker.html'" class="hub-card p-8 rounded-2xl">
-                    <div class="icon-box bg-blue-500/10"><svg class="text-blue-500" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg></div>
-                    <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">IB Floor Tracker</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Mobile-first pallet tracking and status management for inbound receiving.</p>
+                <div onclick="window.location.href='labelbatch.html'" class="hub-card p-8 rounded-2xl group">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-6 transition group-hover:bg-blue-500/20">
+                        <svg class="text-blue-500 card-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 7h10M7 12h10M7 17h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">LabelBatch</h3>
+                    <p class="text-sm text-gray-500 font-medium leading-relaxed">Thermal ZPL generation with Master/Individual modes and multi-line PO support.</p>
                 </div>
 
-                <div onclick="window.location.href='labelgen.html'" class="hub-card p-8 rounded-2xl">
-                    <div class="icon-box bg-orange-500/10"><svg class="text-orange-500" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 7h10M7 12h10m-10 5h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"></path></svg></div>
-                    <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">LABELGEN</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Instant pallet label generation with automated sequence numbering.</p>
+                <div onclick="window.location.href='labelgen.html'" class="hub-card p-8 rounded-2xl group">
+                    <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-6 transition group-hover:bg-purple-500/20">
+                        <svg class="text-purple-500 card-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+                    </div>
+                    <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">LabelGen</h3>
+                    <p class="text-sm text-gray-500 font-medium leading-relaxed">Ad-hoc asset labeling and custom barcode creation for miscellaneous warehouse stock.</p>
                 </div>
 
-                <div onclick="window.location.href='labelbatch.html'" class="hub-card p-8 rounded-2xl">
-                    <div class="icon-box bg-purple-500/10"><svg class="text-purple-500" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></div>
-                    <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">LABELBATCH</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Mass label printing engine for large-scale shipment receiving.</p>
-                </div>
-
-                <div onclick="window.location.href='cor.html'" class="hub-card p-8 rounded-2xl">
-                    <div class="icon-box bg-red-500/10"><svg class="text-red-500" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></div>
+                <div onclick="window.location.href='cor.html'" class="hub-card p-8 rounded-2xl group">
+                    <div class="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center mb-6 transition group-hover:bg-red-500/20">
+                        <svg class="text-red-500 card-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
                     <h3 class="text-xl font-black text-white mb-2 uppercase tracking-tight">COR Portal</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Virtual Chain of Responsibility declaration form for delivery drivers.</p>
+                    <p class="text-sm text-gray-500 font-medium leading-relaxed">Chain of Responsibility tracking and driver compliance declaration portal.</p>
                 </div>
 
             </div>
@@ -73,17 +79,34 @@
     </div>
 
     <script>
-        const SECRET = "1234"; // Update this to your chosen code
+        const SECRET = "1234";
+        const TIMEOUT_DURATION = 2 * 60 * 60 * 1000; // 2 Hours
 
         function checkAuth() {
-            if (localStorage.getItem('rp_hub_session') === "active") {
+            const lastActive = localStorage.getItem('rp_hub_last_active');
+            const now = Date.now();
+
+            if (lastActive && (now - lastActive < TIMEOUT_DURATION)) {
+                resetTimer(); 
                 revealContent();
+            } else {
+                if (lastActive) document.getElementById('timeout-msg').classList.remove('hidden');
+                lockHub();
+            }
+        }
+
+        function resetTimer() {
+            if (localStorage.getItem('rp_hub_session') === "active") {
+                localStorage.setItem('rp_hub_last_active', Date.now());
             }
         }
 
         function validate() {
-            if (document.getElementById('access-code').value === SECRET) {
+            const input = document.getElementById('access-code').value;
+            if (input === SECRET) {
                 localStorage.setItem('rp_hub_session', 'active');
+                localStorage.setItem('rp_hub_last_active', Date.now());
+                document.getElementById('timeout-msg').classList.add('hidden');
                 revealContent();
             } else {
                 alert("ACCESS DENIED");
@@ -98,10 +121,21 @@
 
         function lockHub() {
             localStorage.removeItem('rp_hub_session');
-            window.location.reload();
+            localStorage.removeItem('rp_hub_last_active');
+            if (document.getElementById('main-content').classList.contains('hidden-content') === false) {
+                window.location.reload();
+            }
         }
+
+        setInterval(() => {
+            const lastActive = localStorage.getItem('rp_hub_last_active');
+            if (lastActive && (Date.now() - lastActive > TIMEOUT_DURATION)) {
+                lockHub();
+                window.location.reload();
+            }
+        }, 60000);
+
+        document.getElementById('access-code').addEventListener('keypress', (e) => { if (e.key === 'Enter') validate(); });
     </script>
 </body>
 </html>
-
-
