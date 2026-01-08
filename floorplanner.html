@@ -3,83 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RP FLOORPLANNER V5.2</title>
+    <title>RP FLOORPLANNER V5.40</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-app: #0d1117; --bg-panel: #161b22; --text-main: #c9d1d9; 
             --accent-green: #10b981; --accent-blue: #58a6ff; --accent-cyan: #00f2ff; --accent-red: #f85149; 
-            --unit-size: 60px;
+            --accent-amber: #f59e0b; --unit-size: 60px; --text-label: #8b949e;
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); margin: 0; overflow: hidden; height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 0 40px; border-bottom: 1px solid #30363d; background: var(--bg-app); height: 70px; z-index: 2000; position: relative; }
         h1 { font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #fff; font-size: 0.9rem; }
-        .btn-nav { background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 6px 14px; font-size: 0.7rem; font-weight: 900; cursor: pointer; border-radius: 4px; }
+        .btn-nav { background: transparent; border: 1px solid #30363d; color: var(--text-label); padding: 6px 14px; font-size: 0.7rem; font-weight: 900; cursor: pointer; border-radius: 4px; transition: 0.2s; position: relative; z-index: 2500; }
         .btn-active { background: var(--accent-blue) !important; color: #000 !important; border: none !important; }
 
-        #warehouse-viewport { height: calc(100vh - 70px); overflow: auto; background: #000; position: relative; }
+        #warehouse-viewport { flex: 1; overflow: auto; background: #000; position: relative; }
         #viewport-content { width: fit-content; margin: 0 auto; display: block; position: relative; }
         #coord-header { display: flex; position: sticky; top: 0; z-index: 1000; background: var(--bg-app); border-bottom: 1px solid #30363d; width: 720px; }
-        .col-label { width: var(--unit-size); height: 30px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: #8b949e; }
-        #warehouse-stage { position: relative; width: fit-content; display: flex; }
+        .col-label { width: var(--unit-size); height: 30px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: var(--text-label); }
+        
+        #warehouse-stage { position: relative; width: 780px; display: flex; }
         #grid-canvas { display: grid; grid-template-columns: repeat(12, var(--unit-size)); width: 720px; background: #000; position: relative; z-index: 10; }
-        .grid-unit { width: var(--unit-size); height: var(--unit-size); border: 0.5px solid rgba(255,255,255,0.05); box-sizing: border-box; }
-        .grid-unit[id*="-1-"], .grid-unit[id*="-2-"] { background: rgba(248, 81, 73, 0.04); }
+        .grid-unit { width: var(--unit-size); height: var(--unit-size); border: 0.5px solid rgba(255,255,255,0.05); box-sizing: border-box; position: relative; cursor: cell; display: flex; align-items: center; justify-content: center; }
+        
+        /* ADJUSTED MM-LABEL FOR VISIBILITY */
+        .mm-label { font-family: 'JetBrains Mono', monospace; font-size: 7px; color: #30363d; pointer-events: none; text-align: center; line-height: 1.1; z-index: 5; }
 
-        #row-labels { width: 40px; position: sticky; right: 0; z-index: 1000; background: var(--bg-app); border-left: 1px solid #30363d; }
-        .row-label { height: var(--unit-size); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: #8b949e; }
+        #row-labels { width: 40px; background: var(--bg-app); border-left: 1px solid #30363d; z-index: 12; position: relative; }
+        .row-label { height: var(--unit-size); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: var(--text-label); }
 
-        #pallet-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 500; }
-        .pallet-block { position: absolute; pointer-events: auto; z-index: 600; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 118px; height: 118px; border: 2.5px solid rgba(0,0,0,0.8); border-radius: 4px; box-sizing: border-box; padding-top: 32px; overflow: hidden; }
+        #layout-layer { position: absolute; top: 0; left: 0; width: 780px; height: 100%; pointer-events: none; z-index: 15; }
+        .door-ref { position: absolute; right: 0; width: 18px; border-right: 4px solid var(--accent-cyan); background: rgba(0, 242, 255, 0.1); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .door-label { transform: rotate(90deg); font-size: 8px; font-weight: 900; color: var(--accent-cyan); white-space: nowrap; letter-spacing: 1px; opacity: 0.7; }
+        .hub-ref { position: absolute; left: 0; width: 720px; background: rgba(88, 166, 255, 0.08); border-top: 2px dashed rgba(88, 166, 255, 0.2); border-bottom: 2px dashed rgba(88, 166, 255, 0.2); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .hub-label { font-size: 24px; font-weight: 900; color: rgba(88, 166, 255, 0.1); letter-spacing: 1em; text-transform: uppercase; }
+
+        #pallet-layer { position: absolute; top: 0; left: 0; width: 720px; height: 100%; pointer-events: none; z-index: 500; }
+        .pallet-block { position: absolute; pointer-events: auto; z-index: 600; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 118px; height: 118px; border: 2.5px solid rgba(0,0,0,0.8); border-radius: 4px; box-sizing: border-box; padding-top: 32px; overflow: hidden; cursor: grab; }
         .occupied { background: var(--accent-green); color: #000; }
         .high-stack { background: var(--accent-blue); color: #000; }
-        .is-selected { box-shadow: 0 0 15px var(--accent-cyan) !important; border: 2.5px solid var(--accent-cyan) !important; z-index: 800 !important; }
-        
+        .is-empty { background: #1c2128; border: 2.5px dashed #444c56; color: #768390; }
+        .is-stow { background: var(--accent-amber); border: 2.5px solid #000; color: #000; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+
         .handle-tray { position: absolute; top: 4px; left: 4px; z-index: 700; display: flex; gap: 4px; }
         .h-btn { width: 22px; height: 22px; background: rgba(0,0,0,0.75); border-radius: 3px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
         
-        .p-carrier { font-weight: 900; text-align: center; width: 90%; padding: 0 4px; text-transform: uppercase; line-height: 1; margin-bottom: 2px; pointer-events: none; white-space: nowrap; overflow: visible; }
+        .p-carrier { font-weight: 900; text-align: center; width: 90%; padding: 0 4px; text-transform: uppercase; line-height: 1; margin-bottom: 2px; pointer-events: none; }
         .p-qty { font-size: 10px; font-weight: 900; line-height: 1; margin: 2px 0; pointer-events: none; opacity: 0.9; }
         .p-date { font-size: 9px; font-weight: 800; background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 2px; margin-top: auto; margin-bottom: 6px; pointer-events: none; opacity: 0.7; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .modal.active { display: flex; }
         .modal-content { background: var(--bg-panel); border: 1px solid #30363d; width: 440px; padding: 30px; border-radius: 12px; }
-        .mode-btn { flex: 1; padding: 14px 4px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; cursor: pointer; }
-        .mode-btn.active { background: var(--accent-blue) !important; color: #000 !important; border: none !important; }
+        .mode-btn { flex: 1; padding: 14px 4px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid #30363d; border-radius: 6px; color: var(--text-label); cursor: pointer; transition: 0.2s; }
+        .mode-btn.active { background: var(--accent-blue) !important; color: #000 !important; border-color: transparent !important; }
 
-        /* [Other Styles Preserved] */
-        .audit-grid { display: grid; grid-template-columns: 80px 250px 1fr 100px 100px 150px; align-items: center; border-bottom: 1px solid #30363d; }
-        .audit-header { background: #21262d; position: sticky; top: 0; z-index: 100; padding: 12px 0; font-size: 11px; font-weight: 900; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
-        .isa-row { background: #161b22; padding: 10px 0; }
-        .isd-row { padding: 8px 0; font-size: 13px; border-bottom: 1px solid #161b22; }
-        .live-input { background: rgba(0,0,0,0.4); border: 1px solid #30363d; color: var(--accent-blue); font-weight: 900; font-size: 13px; text-transform: uppercase; width: 95%; padding: 8px; border-radius: 4px; }
-        .btn-toggle { width: 34px; height: 34px; background: var(--accent-blue); color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; margin-left: 20px; }
-        .btn-detach { color: var(--accent-red); font-size: 11px; font-weight: 400; border: 1px solid rgba(248, 81, 73, 0.3); padding: 5px 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        /* REBUILT MODULAR MANIFEST VIEWER GRID */
+        .audit-grid { display: grid; grid-template-columns: 80px 280px 1fr 100px 100px 150px; align-items: center; width: 100%; border-bottom: 1px solid #30363d; }
+        .audit-header { background: #0d1117; position: sticky; top: 0; z-index: 100; padding: 15px 0; font-size: 11px; font-weight: 900; color: #9ca3af; text-transform: uppercase; }
+        .isa-row { background: #161b22; padding: 12px 0; }
+        .isd-row { background: #0d1117; padding: 10px 0; font-size: 13px; border-bottom: 1px solid #161b22; }
+        .btn-toggle { width: 30px; height: 30px; background: var(--accent-blue); color: #000; font-weight: 900; border-radius: 4px; cursor: pointer; margin-left: 25px; display: flex; align-items: center; justify-content: center; }
+        .live-input { background: rgba(0,0,0,0.4); border: 1px solid #30363d; color: var(--accent-blue); font-weight: 900; font-size: 13px; text-transform: uppercase; width: 90%; padding: 6px; border-radius: 4px; }
+
+        .analytics-table { width: 100%; border-collapse: collapse; font-size: 11px; font-weight: 900; text-transform: uppercase; }
+        .analytics-table th { background: #21262d; color: var(--text-label); border: 1px solid #30363d; padding: 12px 6px; }
+        .analytics-table td { background: #161b22; border: 1px solid #30363d; padding: 12px 6px; text-align: center; color: white; }
+
+        .btn-add-line { width: 100%; padding: 12px 0; background: #0d1117; color: var(--text-label); font-family: 'Inter', sans-serif; font-weight: 900; font-size: 22px; border: 1px solid #30363d; border-top: none; cursor: pointer; transition: 0.2s; outline: none; }
+        .btn-add-line:hover { background: #21262d; color: #fff; }
+
+        .hub-ctrl-btn { flex: 1; padding: 14px 4px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid #30363d; border-radius: 8px; background: var(--bg-panel); color: var(--text-label); cursor: pointer; transition: 0.2s; }
+        .hub-ctrl-save { color: var(--accent-green); }
+        .hub-ctrl-vacate { color: var(--accent-red); }
+        .hub-ctrl-reset { color: var(--accent-amber); }
+
+        .ip-footer { padding: 15px 0; border-top: 1px solid #161b22; text-align: center; width: 100%; background: var(--bg-app); }
+        .ip-text { font-size: 10px; color: #3d444d; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
     </style>
 </head>
-<body onload="init()">
+<body onload="init()" onmousemove="syncHubTimer()" onkeydown="syncHubTimer()" onclick="syncHubTimer()">
+    
     <div class="top-bar">
-        <h1>RP FLOORPLANNER V5.2</h1>
+        <div class="flex items-center gap-4">
+            <h1>RP FLOORPLANNER V5.40</h1>
+            <div class="bg-black px-3 py-1 rounded border border-[#30363d] flex items-center">
+                <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Shift Stowed:</span>
+                <span id="stowed-count" class="text-[11px] font-black text-accent-green ml-2">0</span>
+            </div>
+        </div>
         <div class="flex gap-2">
             <button onclick="switchView('grid')" id="btn-grid" class="btn-nav btn-active">GRID VIEW</button>
-            <button onclick="switchView('manifest')" id="btn-manifest" class="btn-nav">AUDIT</button>
+            <button onclick="switchView('manifest')" id="btn-manifest" class="btn-nav">MANIFEST</button>
             <button onclick="switchView('settings')" id="btn-settings" class="btn-nav">DATA HUB</button>
             <button class="btn-nav" onclick="window.location.href='index.html'" style="color:var(--accent-blue)">HUB</button>
         </div>
     </div>
 
-    <div id="view-grid" class="section-view">
+    <div id="view-grid" class="section-view flex-1 flex flex-col overflow-hidden">
         <div id="warehouse-viewport">
             <div id="viewport-content">
                 <div id="coord-header"></div>
                 <div id="warehouse-stage">
                     <div id="grid-canvas"></div>
+                    <div id="layout-layer"></div>
                     <div id="pallet-layer"></div>
                     <div id="row-labels"></div>
                 </div>
@@ -87,210 +119,155 @@
         </div>
     </div>
 
-    <div id="view-manifest" class="p-8 section-view" style="display: none;">
-        <div class="max-w-[1400px] mx-auto bg-[#161b22] border border-[#30363d] rounded-lg h-[80vh] flex flex-col overflow-hidden">
+    <div id="view-manifest" class="p-8 section-view flex-col h-full overflow-hidden" style="display: none;">
+        <div class="max-w-[1400px] mx-auto bg-[#161b22] border border-[#30363d] rounded-lg h-[80vh] flex flex-col overflow-hidden w-full shadow-2xl">
             <div class="p-6 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center">
-                <h3 class="text-sm font-black uppercase text-white">Modular Manifest Viewer</h3>
-                <input type="text" id="mSearch" class="bg-black border border-[#30363d] p-3 text-xs w-80 rounded" placeholder="Filter carrier..." oninput="renderAudit()">
+                <h3 class="text-sm font-black uppercase text-white tracking-widest">Modular Manifest Viewer</h3>
+                <input type="text" id="mSearch" class="bg-black border border-[#30363d] p-3 text-xs w-80 rounded text-accent-blue" placeholder="Filter carrier or ID..." oninput="renderAudit()">
             </div>
-            <div class="audit-grid audit-header"><div class="text-center">+/-</div><div class="px-2">Carrier</div><div class="px-4">Reference ID</div><div class="text-center">Total PLT</div><div class="text-center">Units</div><div class="text-center">Action</div></div>
-            <div id="auditList" class="overflow-y-scroll flex-1"></div>
+            <div class="audit-grid audit-header">
+                <div class="text-center">+/-</div>
+                <div class="px-2">Carrier</div>
+                <div class="px-4">Reference ID</div>
+                <div class="text-center">PLT</div>
+                <div class="text-center">Units</div>
+                <div class="text-center">Action</div>
+            </div>
+            <div id="auditList" class="overflow-y-auto flex-1 bg-black/20"></div>
         </div>
     </div>
 
-    <div id="view-settings" class="p-10 section-view" style="display: none;">
-        <div class="max-w-4xl mx-auto text-center">
-            <div class="grid grid-cols-2 gap-8 mb-10">
-                <div class="bg-panel border border-[#30363d] p-10 rounded-2xl"><h3 class="text-xs font-black uppercase mb-4 text-[#58a6ff]">Restore Session</h3><input type="file" id="jsonIn" onchange="handleRestore(this)" class="hidden"><button onclick="document.getElementById('jsonIn').click()" class="w-full py-4 border border-[#30363d] font-black rounded text-accent-blue uppercase">Load JSON</button></div>
-                <div class="bg-panel border border-[#30363d] p-10 rounded-2xl"><h3 class="text-xs font-black uppercase mb-4 text-[#10b981]">Load Manifest</h3><input type="file" id="csvIn" onchange="handleCSV(this)" class="hidden"><button onclick="document.getElementById('csvIn').click()" class="w-full py-4 border border-[#30363d] font-black rounded text-accent-green uppercase">Load CSV</button></div>
+    <div id="view-settings" class="p-10 section-view flex-col h-full overflow-y-auto" style="display: none;">
+        <div class="max-w-6xl mx-auto space-y-8 pb-20 text-center">
+            <div class="bg-[#161b22] border border-[#30363d] p-6 rounded-2xl flex gap-3">
+                <button onclick="document.getElementById('jsonIn').click()" class="hub-ctrl-btn">Restore Session</button>
+                <input type="file" id="jsonIn" onchange="handleRestore(this)" class="hidden">
+                <button onclick="document.getElementById('csvIn').click()" class="hub-ctrl-btn">Load Manifest</button>
+                <input type="file" id="csvIn" onchange="handleCSV(this)" class="hidden">
+                <button onclick="exportJSON()" class="hub-ctrl-btn hub-ctrl-save">Save Master Session</button>
+                <button onclick="clearGrid()" class="hub-ctrl-btn hub-ctrl-vacate">Vacate Floor</button>
+                <button onclick="clearManifest()" class="hub-ctrl-btn hub-ctrl-reset">Reset Manifest</button>
             </div>
-            <div class="flex flex-col items-center gap-4 bg-red-900/10 border border-red-500/20 p-10 rounded-2xl">
-                <button onclick="clearGrid()" class="w-64 py-4 border border-red-500 text-red-500 font-black rounded text-xs uppercase">Vacate Grid</button>
-                <button onclick="clearManifest()" class="w-64 py-4 border border-red-500 text-red-500 font-black rounded text-xs uppercase">Reset Manifest</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="modal-title" class="text-xl font-black mb-4 uppercase text-white">Layout Engine</h3>
-            <div id="picker-area" class="mb-4" style="display:none;"><label class="text-[10px] font-black text-orange-500 uppercase">Load from manifest</label><select id="shipment-picker" onchange="applyPicker()" class="w-full bg-black text-white p-3 border border-gray-700 rounded mt-1"></select></div>
-            <div class="flex gap-2 mb-6">
-                <button id="mode-compact" onclick="setOpMode('compact')" class="mode-btn active">Compact</button>
-                <button id="mode-buffer" onclick="setOpMode('buffer')" class="mode-btn">Buffer</button>
-                <button id="mode-breakdown" onclick="setOpMode('breakdown')" class="mode-btn">Breakdown</button>
-            </div>
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-2">
-                    <div><label class="text-[10px] font-black text-gray-500 uppercase">Qty</label><input type="number" id="in-qty" class="w-full bg-black border border-gray-700 p-3 rounded text-white" value="1"></div>
-                    <div><label class="text-[10px] font-black text-gray-500 uppercase">Carrier</label><input type="text" id="in-carrier" class="w-full bg-black border border-gray-700 p-3 rounded text-white"></div>
+            <div class="bg-[#161b22] border border-[#30363d] rounded-lg overflow-hidden shadow-2xl flex flex-col text-left">
+                <div class="p-6 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center"><h3 class="text-sm font-black uppercase text-white tracking-widest">Floor Analytics</h3><button onclick="clearAnalytics()" class="text-[10px] font-black text-accent-red uppercase">Reset Log</button></div>
+                <div class="p-0 bg-black/40 overflow-hidden">
+                    <table class="analytics-table"><thead><tr><th>Date</th><th>Time</th><th>Breakdown</th><th>Forest</th><th>Compact</th><th>Received</th><th>Stowed</th><th>Capacity</th></tr></thead><tbody id="analytics-body"></tbody></table>
+                    <button onclick="addAnalyticsSnapshot()" class="btn-add-line">+</button>
                 </div>
-                <div><label class="text-[10px] font-black text-gray-500 uppercase">Reference ID</label><input type="text" id="in-id" class="w-full bg-black border border-gray-700 p-3 rounded text-white"></div>
             </div>
-            <div class="flex gap-2 mt-8">
-                <button onclick="commitPlacement()" class="flex-1 py-4 bg-accent-green text-black font-black rounded uppercase text-xs" id="btn-drop">Drop Formation</button>
-                <button onclick="reLayoutCurrentGroup()" class="flex-1 py-4 bg-accent-cyan text-black font-black rounded uppercase text-xs" id="btn-relayout" style="display:none">Update Mode</button>
-                <button onclick="delPallet()" id="btn-del" class="flex-1 py-4 bg-accent-red text-white font-black rounded uppercase text-xs">Delete</button>
-                <button onclick="closeModal()" class="flex-1 py-4 border border-[#30363d] font-bold rounded uppercase text-xs">Cancel</button>
+            <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-8 flex flex-col items-center">
+                <h3 class="text-sm font-black uppercase text-white tracking-widest mb-6">Warehouse Layout Calibration</h3>
+                <div class="grid grid-cols-4 gap-6 w-full text-left">
+                    <div><label class="text-[9px] font-black text-gray-500 uppercase block mb-2">Door C (Top)</label><input type="number" id="cfg-door-c-top" class="bg-black border border-gray-700 text-accent-cyan p-3 rounded w-full text-center font-bold" onchange="updateLayout()"></div>
+                    <div><label class="text-[9px] font-black text-gray-500 uppercase block mb-2">Inbound Hub</label><input type="number" id="cfg-hub" class="bg-black border border-gray-700 text-accent-blue p-3 rounded w-full text-center font-bold" onchange="updateLayout()"></div>
+                    <div><label class="text-[9px] font-black text-gray-500 uppercase block mb-2">Door B</label><input type="number" id="cfg-door-b" class="bg-black border border-gray-700 text-accent-cyan p-3 rounded w-full text-center font-bold" onchange="updateLayout()"></div>
+                    <div><label class="text-[9px] font-black text-gray-500 uppercase block mb-2">Door C (Bottom)</label><input type="number" id="cfg-door-c-bot" class="bg-black border border-gray-700 text-accent-cyan p-3 rounded w-full text-center font-bold" onchange="updateLayout()"></div>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="edit-modal" class="modal"><div class="modal-content"><h3 id="modal-title" class="text-xl font-black mb-4 uppercase text-white">Layout Engine</h3><div class="flex gap-2 mb-6 border-b border-[#30363d] pb-6"><button id="type-freight" onclick="setPltType('freight')" class="mode-btn">Freight</button><button id="type-empty" onclick="setPltType('empty')" class="mode-btn">Empty</button></div><div id="shared-config"><div id="picker-area" class="mb-4" style="display:none;"><label class="text-[10px] font-black text-orange-500 uppercase">Load from manifest</label><select id="shipment-picker" onchange="applyPicker()" class="w-full bg-black text-white p-3 border border-gray-700 rounded mt-1"></select></div><div class="flex gap-2 mb-6"><button id="mode-compact" onclick="setOpMode('compact')" class="mode-btn">Compact</button><button id="mode-buffer" onclick="setOpMode('buffer')" class="mode-btn">Buffer</button><button id="mode-breakdown" onclick="setOpMode('breakdown')" class="mode-btn">Breakdown</button></div><div class="space-y-4"><div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-black text-gray-500 uppercase">Qty</label><input type="number" id="in-qty" class="w-full bg-black border border-gray-700 p-3 rounded text-white" value="1"></div><div id="carrier-wrap"><label class="text-[10px] font-black text-gray-500 uppercase">Carrier</label><input type="text" id="in-carrier" class="w-full bg-black border border-gray-700 p-3 rounded text-white"></div></div><div id="id-wrap"><label class="text-[10px] font-black text-gray-500 uppercase">Reference ID</label><input type="text" id="in-id" class="w-full bg-black border border-gray-700 p-3 rounded text-white"></div></div></div><div class="flex gap-2 mt-8"><button onclick="commitPlacement()" class="flex-1 py-4 bg-accent-green text-black font-black rounded uppercase text-xs" id="btn-drop">Drop Formation</button><button onclick="delPallet()" id="btn-del" class="flex-1 py-4 bg-accent-red text-white font-black rounded uppercase text-xs">Delete</button><button onclick="closeModal()" class="flex-1 py-4 border border-[#30363d] font-bold rounded uppercase text-xs">Cancel</button></div></div></div>
 
     <script>
-        let warehouseData = { pallets: [] }, GROUPS = {}; 
-        let opMode = 'compact', activeLoc = null, editIdx = null;
+        let warehouseData = { pallets: [] }, GROUPS = {}, stowHistory = [], analyticsSnapshots = []; 
+        let layoutSettings = { doorCTop: 26, doorB: 96, doorCBot: 110, hub: 88 }; 
+        let opMode = 'compact', activeLoc = null, editIdx = null, currentType = 'freight';
         let moveState = { active: false, selectedIndices: [], startR: 0, startC: 0, targetR: 0, targetC: 0 };
-        const ROWS = 140, COLS = 12, UNIT = 60, COL_NAMES = ["L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"];
+        const ROWS = 140, COLS = 12, UNIT = 60, COL_NAMES = ["L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"], MM_UNIT = 580;
 
-        function init() { load(); buildGrid(); render(); }
-        function load() { const s = localStorage.getItem('rp_v52'); if(s) warehouseData = JSON.parse(s); }
-        function save() { localStorage.setItem('rp_v52', JSON.stringify(warehouseData)); }
+        function init() { load(); buildGrid(); render(); updatePutawayCounter(); }
+        function syncHubTimer() { localStorage.setItem('rp_hub_last_active', Date.now()); }
 
-        function buildGrid() {
-            const h = document.getElementById('coord-header'), r = document.getElementById('row-labels'), c = document.getElementById('grid-canvas');
-            h.innerHTML = ''; r.innerHTML = ''; c.innerHTML = '';
-            COL_NAMES.forEach(n => h.innerHTML += `<div class="col-label">${n}</div>`);
-            for(let i=1; i<=ROWS; i++) r.innerHTML += `<div class="row-label">${i}</div>`;
-            for(let i=0; i<ROWS*COLS; i++) {
-                const row = Math.floor(i/COLS)+1, col = (i%COLS)+1;
-                const u = document.createElement('div'); u.className = 'grid-unit'; u.id = `unit-${row}-${col}`;
-                u.onclick = () => handleGridClick(row, col);
-                u.onmouseenter = () => { if(moveState.active) { moveState.targetR = row; moveState.targetC = col; updateGhosts(row, col); } };
-                c.appendChild(u);
-            }
-        }
-
-        function render() {
-            const layer = document.getElementById('pallet-layer'); layer.innerHTML = '';
-            warehouseData.pallets.forEach((p, idx) => {
-                const isS = moveState.selectedIndices.includes(idx);
-                const groupPallets = warehouseData.pallets.filter(item => item.id === p.id);
-                const sequenceNum = groupPallets.indexOf(p) + 1;
-                const totalInGroup = GROUPS[p.id] ? GROUPS[p.id].total : groupPallets.length;
-                const cName = p.carrier || 'MANUAL';
-                let fs = 22, ls = -1.5;
-                if (cName.length > 7) { fs = Math.max(12, 22 - (cName.length - 7) * 1.2); ls = Math.max(-2, -1.5 - (cName.length - 7) * 0.1); }
-                const b = document.createElement('div');
-                b.className = `pallet-block ${p.qty > 1 ? 'high-stack' : 'occupied'} ${isS ? 'is-selected' : ''}`;
-                b.id = `plt-${idx}`; b.style.left = `${(p.c-1) * UNIT + 1}px`; b.style.top = `${(p.r-1) * UNIT + 1}px`;
-                b.innerHTML = `
-                    <div class="handle-tray">
-                        <div class="h-btn" onmousedown="startDrag(event, ${idx})"><svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"/></svg></div>
-                        <div class="h-btn" onclick="event.stopPropagation(); selGroup('${p.id}')"><svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M3.9 12c.5-1.7 2-3 3.9-3h4V7H7.8c-3 0-5.4 2.1-5.9 4.9.4-.2.9-.3 1.4-.3.2 0 .5 0 .6.1zM16.2 15c-.5 1.7-2 3-3.9 3h-4v2h4.2c3 0 5.4-2.1 5.9-4.9-.4.2-.9.3-1.4.3-.2 0-.5 0-.6-.1zM13 11H7v2h6v-2zM21.2 11c-.5-1.7-2-3-3.9-3h-4v2h4.2c2 0 3.7 1.3 4.2 3.1.4-.2.9-.3 1.4-.3.2 0 .5 0 .6.1.1-1-.2-1.9-.5-2.9z"/></svg></div>
-                        <div class="h-btn" onclick="event.stopPropagation(); toggleSel(${idx})"><svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
-                    </div>
-                    <div class="p-carrier" style="font-size: ${fs}px; letter-spacing: ${ls}px">${cName}</div>
-                    <div class="p-qty">${sequenceNum}/${totalInGroup}</div>
-                    <div class="p-date">${p.date || 'N/A'}</div>`;
-                b.onclick = (e) => { e.stopPropagation(); if(!moveState.active) openEdit(idx); };
-                layer.appendChild(b);
-            });
-            if(document.getElementById('view-manifest').style.display !== 'none') renderAudit();
-        }
-
-        /* NEW FEATURE: DYNAMIC RE-LAYOUT LOGIC */
-        function reLayoutCurrentGroup() {
-            const p = warehouseData.pallets[editIdx];
-            const groupId = p.id;
-            const groupCarrier = p.carrier;
-            const groupDate = p.date;
-            const groupTotal = GROUPS[groupId].total;
-            const startLoc = { r: p.r, c: p.c };
-
-            // 1. Remove entire group from floor
-            warehouseData.pallets = warehouseData.pallets.filter(item => item.id !== groupId);
+        function load() { 
+            const s = localStorage.getItem('rp_v52'); if(s) warehouseData = JSON.parse(s);
+            const l = localStorage.getItem('stowLog'); if(l) stowHistory = JSON.parse(l);
+            const g = localStorage.getItem('rp_groups'); if(g) GROUPS = JSON.parse(g);
+            const a = localStorage.getItem('rp_analytics'); if(a) analyticsSnapshots = JSON.parse(a);
+            const lay = localStorage.getItem('rp_layout'); if(lay) layoutSettings = JSON.parse(lay);
             
-            // 2. Re-staged with current opMode logic
-            let droppedCount = 0, vStep = 2, validCols = [11, 9, 7, 5, 3];
-            if(opMode === 'buffer' || opMode === 'breakdown') { vStep = (opMode === 'buffer') ? 3 : 6; validCols = [11, 8, 5, 2]; }
-            
-            let r = startLoc.r;
-            while (droppedCount < groupTotal && r <= ROWS - 1) {
-                for (let c of validCols) {
-                    if (droppedCount >= groupTotal) break;
-                    if (r === startLoc.r && c > startLoc.c) continue;
-                    if (!isOcc(r, c)) { 
-                        warehouseData.pallets.push({ r, c, qty: 1, carrier: groupCarrier, id: groupId, date: groupDate }); 
-                        droppedCount++; 
-                    }
-                }
-                r += vStep;
-            }
-            save(); closeModal(); render();
+            const inputs = { 'cfg-door-c-top': 'doorCTop', 'cfg-hub': 'hub', 'cfg-door-b': 'doorB', 'cfg-door-c-bot': 'doorCBot' };
+            Object.entries(inputs).forEach(([id, key]) => { if(document.getElementById(id)) document.getElementById(id).value = layoutSettings[key]; });
+        }
+        function save() { 
+            localStorage.setItem('rp_v52', JSON.stringify(warehouseData)); localStorage.setItem('stowLog', JSON.stringify(stowHistory)); 
+            localStorage.setItem('rp_groups', JSON.stringify(GROUPS)); localStorage.setItem('rp_analytics', JSON.stringify(analyticsSnapshots)); 
+            localStorage.setItem('rp_layout', JSON.stringify(layoutSettings)); syncHubTimer(); 
         }
 
+        // FIXED MANIFEST RENDERER
         function renderAudit() {
             const list = document.getElementById('auditList'); if(!list) return;
             const search = document.getElementById('mSearch').value.toUpperCase();
             list.innerHTML = '';
+            
             Object.keys(GROUPS).forEach(id => {
-                if (search && !GROUPS[id].carrier.includes(search) && !id.includes(search)) return;
-                const g = GROUPS[id], staged = warehouseData.pallets.filter(p => p.id === id).length;
+                const g = GROUPS[id];
+                if (search && !g.carrier.includes(search) && !id.includes(search)) return;
+                
+                const staged = warehouseData.pallets.filter(p => p.id === id).length;
                 const div = document.createElement('div');
-                div.innerHTML = `<div class="audit-grid isa-row"><div><button class="btn-toggle" onclick="toggleISA('${id}')">${g.open ? '−' : '+'}</button></div><div class="px-2"><input type="text" class="live-input" value="${g.carrier}" oninput="syncC('${id}', this.value)"></div><div class="font-Inter text-white px-4">${id}</div><div class="px-2 text-center font-Inter text-gray-500">${g.total}</div><div class="text-center font-Inter text-gray-500">${g.units || 0}</div><div class="text-center font-Inter text-gray-500">${staged} STAGED</div></div><div id="tray-${id}" class="isd-container" style="display: ${g.open ? 'block' : 'none'}">${Object.keys(g.isds || {}).map(isdId => `<div class="audit-grid isd-row"><div></div><div class="px-2"><input type="text" class="live-input" style="color:var(--accent-green)" value="${g.isds[isdId].carrier}" oninput="syncIsdC('${id}', '${isdId}', this.value)"></div><div class="font-Inter text-gray-400 px-4">${isdId}</div><div class="text-center font-Inter text-white">${g.isds[isdId].qty} PLT</div><div class="text-center font-Inter text-gray-500">${g.isds[isdId].units}</div><div class="text-center"><span class="btn-detach" onclick="detach('${id}', '${isdId}')">Detach</span></div></div>`).join('')}</div>`;
+                div.className = "isa-container";
+                
+                div.innerHTML = `
+                    <div class="audit-grid isa-row">
+                        <div><button class="btn-toggle" onclick="toggleISA('${id}')">${g.open ? '−' : '+'}</button></div>
+                        <div class="px-2"><input type="text" class="live-input" value="${g.carrier}" oninput="syncC('${id}', this.value)"></div>
+                        <div class="px-4 font-bold text-white">${id}</div>
+                        <div class="text-center text-gray-400 font-black">${g.total}</div>
+                        <div class="text-center text-gray-500">${g.units || 0}</div>
+                        <div class="text-center text-[10px] text-accent-cyan font-black">${staged} STAGED</div>
+                    </div>
+                    <div id="tray-${id}" style="display: ${g.open ? 'block' : 'none'}">
+                        ${Object.keys(g.isds || {}).map(isdId => `
+                            <div class="audit-grid isd-row">
+                                <div></div>
+                                <div class="px-2 pl-6"><input type="text" class="live-input !text-accent-green" value="${g.isds[isdId].carrier}" oninput="syncIsdC('${id}', '${isdId}', this.value)"></div>
+                                <div class="px-4 text-gray-400">${isdId}</div>
+                                <div class="text-center text-white">${g.isds[isdId].qty} PLT</div>
+                                <div class="text-center text-gray-500">${g.isds[isdId].units}</div>
+                                <div class="text-center"><button class="btn-nav !py-1 !px-3 text-[9px]" onclick="detach('${id}', '${isdId}')">Detach</button></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
                 list.appendChild(div);
             });
         }
 
-        function delPallet() { if(editIdx !== null) { warehouseData.pallets.splice(editIdx, 1); save(); closeModal(); render(); } }
-
-        function commitPlacement() {
-            const qRequested = parseInt(document.getElementById('in-qty').value)||1, car = document.getElementById('in-carrier').value, id = document.getElementById('in-id').value;
-            const dropDate = new Date().toLocaleDateString('en-GB');
-            if(editIdx !== null) { warehouseData.pallets[editIdx] = {...warehouseData.pallets[editIdx], carrier: car, id}; }
-            else {
-                const existingCount = warehouseData.pallets.filter(p => p.id === id).length;
-                const remainingToDrop = qRequested - existingCount;
-                if (remainingToDrop <= 0) { alert(`ALL PALLETS PLACED. \n\nShipment ID: ${id} \nTotal: ${qRequested} \nFloor: ${existingCount}`); return; }
-                let droppedCount = 0, vStep = 2, validCols = [11, 9, 7, 5, 3];
-                if(opMode === 'buffer' || opMode === 'breakdown') { vStep = (opMode === 'buffer') ? 3 : 6; validCols = [11, 8, 5, 2]; }
-                let r = activeLoc.r;
-                while (droppedCount < remainingToDrop && r <= ROWS - 1) {
-                    for (let c of validCols) {
-                        if (droppedCount >= remainingToDrop) break;
-                        if (r === activeLoc.r && c > activeLoc.c) continue;
-                        if (!isOcc(r, c)) { warehouseData.pallets.push({ r, c, qty: 1, carrier: car, id, date: dropDate }); droppedCount++; }
-                    }
-                    r += vStep;
-                }
-                if(!GROUPS[id]) GROUPS[id] = { carrier: car, total: qRequested, units: 0, isds: {}, open: false };
-            }
-            save(); closeModal(); render();
-        }
-
-        function toggleISA(id) { GROUPS[id].open = !GROUPS[id].open; renderAudit(); }
-        function syncC(id, val) { GROUPS[id].carrier = val.toUpperCase(); warehouseData.pallets.forEach(p => { if(p.id===id) p.carrier = val.toUpperCase(); }); save(); render(); }
-        function syncIsdC(isa, isd, val) { GROUPS[isa].isds[isd].carrier = val.toUpperCase(); }
-        function detach(isaId, isdId) { const p = GROUPS[isaId], d = p.isds[isdId]; GROUPS[isdId] = { carrier: d.carrier + " (IND)", total: d.qty, units: d.units, isds: {[isdId]: d}, open: false }; p.total -= d.qty; delete p.isds[isdId]; if(p.total <= 0) delete GROUPS[isaId]; renderAudit(); updatePicker(); }
-        function handleCSV(input) { const fr = new FileReader(); fr.onload = (e) => { const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'}); const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1}); GROUPS = {}; for(let i=1; i<rows.length; i++) { const l = rows[i]; if(!l || !l[2]) continue; const isa = String(l[2]), isd = String(l[3]), carrier = String(l[4]).toUpperCase(), qty = parseInt(l[6])||1; if(!GROUPS[isa]) GROUPS[isa] = { carrier, total: 0, units: 0, isds: {}, open: false }; GROUPS[isa].total += qty; GROUPS[isa].units += parseInt(l[7])||0; GROUPS[isa].isds[isd] = { carrier, qty, units: parseInt(l[7])||0 }; } updatePicker(); switchView('manifest'); }; fr.readAsArrayBuffer(input.files[0]); }
-        function handleGridClick(r, c) { let tC = (c === COLS) ? COLS - 1 : c, tR = (r === ROWS) ? ROWS - 1 : r; if(isOcc(tR, tC)) return; activeLoc = { r: tR, c: tC }; editIdx = null; document.getElementById('modal-title').textContent = `Loc: ${COL_NAMES[tC-1]}${tR}`; document.getElementById('btn-drop').style.display = 'block'; document.getElementById('btn-relayout').style.display = 'none'; document.getElementById('edit-modal').classList.add('active'); updatePicker(); }
-        function isOcc(r, c, ignore = []) { return warehouseData.pallets.some((p, i) => { if(ignore.includes(i)) return false; return !(r + 1 < p.r || r > p.r + 1 || c + 1 < p.c || c > p.c + 1); }); }
-        
-        function openEdit(idx) { 
-            editIdx = idx; 
-            const p = warehouseData.pallets[idx]; 
-            document.getElementById('modal-title').textContent = `Manage Shipment: ${p.id}`; 
-            document.getElementById('in-qty').value = GROUPS[p.id] ? GROUPS[p.id].total : 1; 
-            document.getElementById('in-carrier').value = p.carrier; 
-            document.getElementById('in-id').value = p.id || ''; 
-            document.getElementById('btn-drop').style.display = 'none'; 
-            document.getElementById('btn-relayout').style.display = 'block'; 
-            document.getElementById('edit-modal').classList.add('active'); 
-        }
-
-        function closeModal() { document.getElementById('edit-modal').classList.remove('active'); }
-        function switchView(v) { document.querySelectorAll('.section-view').forEach(s => s.style.display = 'none'); document.getElementById('view-' + v).style.display = 'block'; document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('btn-active')); document.getElementById('btn-' + v).classList.add('btn-active'); if(v==='manifest') renderAudit(); }
-        function updatePicker() { const p = document.getElementById('shipment-picker'); p.innerHTML = '<option value="">-- MANUAL --</option>'; Object.keys(GROUPS).forEach(id => p.innerHTML += `<option value="${id}">${GROUPS[id].carrier} | ${id}</option>`); document.getElementById('picker-area').style.display = Object.keys(GROUPS).length > 0 ? 'block' : 'none'; }
-        function applyPicker() { const id = document.getElementById('shipment-picker').value; if(id) { const g = GROUPS[id]; document.getElementById('in-qty').value = g.total; document.getElementById('in-carrier').value = g.carrier; document.getElementById('in-id').value = id; } }
-        function handleRestore(input) { const fr = new FileReader(); fr.onload = (e) => { try { warehouseData = JSON.parse(e.target.result); save(); buildGrid(); render(); switchView('grid'); } catch(err){alert("Error");} }; fr.readAsText(input.files[0]); }
-        function setOpMode(m) { opMode = m; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); document.getElementById(`mode-${m}`).classList.add('active'); }
-        function clearGrid() { if(confirm("Wipe grid?")) { warehouseData.pallets = []; save(); render(); } }
-        function clearManifest() { if(confirm("Wipe manifest?")) { GROUPS = {}; renderAudit(); updatePicker(); } }
-        function selGroup(id) { if(!id) return; moveState.selectedIndices = []; warehouseData.pallets.forEach((p, i) => { if(p.id === id) moveState.selectedIndices.push(i); }); render(); }
-        function toggleSel(idx) { const p = moveState.selectedIndices.indexOf(idx); if(p > -1) moveState.selectedIndices.splice(p, 1); else moveState.selectedIndices.push(idx); render(); }
+        /* Essential Grid and Formation Logic preserved */
+        function buildGrid() { const c = document.getElementById('grid-canvas'); c.innerHTML = ''; for(let i=0; i<ROWS*COLS; i++) { const row = Math.floor(i/COLS)+1, col = (i%COLS)+1; const u = document.createElement('div'); u.className = 'grid-unit'; u.innerHTML = `<span class="mm-label">${(col * MM_UNIT).toLocaleString()},<br>${(row * MM_UNIT).toLocaleString()}</span>`; u.onclick = () => handleGridClick(row, col); u.onmouseenter = () => { if(moveState.active) { moveState.targetR = row; moveState.targetC = col; updateGhosts(row, col); } }; c.appendChild(u); } const h = document.getElementById('coord-header'), r = document.getElementById('row-labels'); h.innerHTML = ''; r.innerHTML = ''; COL_NAMES.forEach(n => h.innerHTML += `<div class="col-label">${n}</div>`); for(let i=1; i<=ROWS; i++) r.innerHTML += `<div class="row-label">${i}</div>`; }
+        function render() { renderLayout(); const layer = document.getElementById('pallet-layer'); layer.innerHTML = ''; warehouseData.pallets.forEach((p, idx) => { const isE = p.type === 'empty'; let sC = isE ? 'is-empty' : (p.qty > 1 ? 'high-stack' : 'occupied'); if (p.stage === 'stow') sC = 'is-stow'; const b = document.createElement('div'); b.className = `pallet-block ${sC}`; b.id = `plt-${idx}`; b.style.left = `${(p.c-1) * UNIT + 1}px`; b.style.top = `${(p.r-1) * UNIT + 1}px`; let ctrl = isE ? `<div class="h-btn" onclick="event.stopPropagation(); cycleEmptyStage(${idx})"><svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>` : `<div class="h-btn" onclick="event.stopPropagation(); selGroup('${p.id}')"><svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M3.9 12c.5-1.7 2-3 3.9-3h4V7H7.8c-3 0-5.4 2.1-5.9 4.9.4-.2.9-.3 1.4-.3.2 0 .5 0 .6.1zM16.2 15c-.5 1.7-2 3-3.9 3h-4v2h4.2c3 0 5.4-2.1 5.9-4.9-.4.2-.9.3-1.4.3-.2 0-.5 0-.6-.1zM13 11H7v2h6v-2z"/></svg></div>`; const label = isE ? (p.stage ? p.stage.toUpperCase() : 'EMPTY') : p.carrier; const qtyInfo = isE ? '' : `<div class="p-qty">${warehouseData.pallets.filter(item => item.id === p.id).indexOf(p)+1}/${GROUPS[p.id]?GROUPS[p.id].total:1}</div>`; b.innerHTML = `<div class="handle-tray"><div class="h-btn" onmousedown="startDrag(event, ${idx})"><svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"/></svg></div>${ctrl}</div><div class="p-carrier" style="font-size: ${label.length > 7 ? '14' : '22'}px">${label}</div>${qtyInfo}<div class="p-date">${p.date || 'N/A'}</div>`; b.onclick = (e) => { e.stopPropagation(); if(!moveState.active) openEdit(idx); }; layer.appendChild(b); }); }
+        function cycleEmptyStage(idx) { const p = warehouseData.pallets[idx]; if (!p.stage || p.stage === 'empty') { p.stage = 'stow'; } else if (p.stage === 'stow') { stowHistory.push({ time: new Date().toLocaleTimeString(), id: 'PUTAWAY' }); warehouseData.pallets.splice(idx, 1); } save(); render(); updatePutawayCounter(); }
+        function updatePutawayCounter() { document.getElementById('stowed-count').textContent = Array.isArray(stowHistory) ? stowHistory.length : 0; }
+        function addAnalyticsSnapshot() { const now = new Date(); let br=0, fo=0, co=0, received=0; warehouseData.pallets.forEach(p => { if (p.type === 'empty') { if (p.stage === 'stow') received++; } else { if (p.placementMode === 'breakdown') br++; else if (p.placementMode === 'buffer') fo++; else co++; } }); analyticsSnapshots.push({ date: now.toLocaleDateString('en-GB'), time: now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), br, fo, co, received, stowed: stowHistory.length, capacity: `${Math.round((warehouseData.pallets.length/420)*100)}%` }); save(); renderAnalytics(); }
+        function renderAnalytics() { const b = document.getElementById('analytics-body'); if(!b) return; b.innerHTML = analyticsSnapshots.map(s => `<tr><td>${s.date}</td><td>${s.time}</td><td class="val-highlight">${s.br}</td><td class="val-highlight">${s.fo}</td><td class="val-highlight">${s.co}</td><td class="text-accent-amber font-black">${s.received}</td><td class="val-green font-black">${s.stowed}</td><td>${s.capacity}</td></tr>`).join(''); }
+        function clearAnalytics() { if(confirm("Clear log?")) { analyticsSnapshots = []; save(); renderAnalytics(); } }
+        function clearGrid() { if(confirm("Vacate Floor?")) { warehouseData.pallets = []; stowHistory = []; save(); render(); updatePutawayCounter(); } }
+        function clearManifest() { if(confirm("Reset manifest?")) { GROUPS = {}; stowHistory = []; analyticsSnapshots = []; save(); renderAudit(); renderAnalytics(); updatePutawayCounter(); updatePicker(); } }
+        function updateLayout() { layoutSettings.doorCTop = parseInt(document.getElementById('cfg-door-c-top').value); layoutSettings.hub = parseInt(document.getElementById('cfg-hub').value); layoutSettings.doorB = parseInt(document.getElementById('cfg-door-b').value); layoutSettings.doorCBot = parseInt(document.getElementById('cfg-door-c-bot').value); save(); render(); }
+        function renderLayout() { const lay = document.getElementById('layout-layer'); if(!lay) return; lay.innerHTML = ''; const H = 8 * UNIT; const doors = [{row: layoutSettings.doorCTop, label: 'DOOR C'}, {row: layoutSettings.doorB, label: 'DOOR B'}, {row: layoutSettings.doorCBot, label: 'DOOR C'}]; doors.forEach(d => { lay.innerHTML += `<div class="door-ref" style="top: ${(d.row-1)*UNIT}px; height: ${H}px"><span class="door-label">${d.label}</span></div>`; }); lay.innerHTML += `<div class="hub-ref" style="top: ${(layoutSettings.hub-1)*UNIT}px; height: ${H}px"><span class="hub-label">Inbound Hub</span></div>`; }
+        function handleGridClick(r, c) { let tC = (c === COLS) ? COLS - 1 : c; let tR = (r === ROWS) ? ROWS - 1 : r; if(isOcc(tR, tC)) return; activeLoc = { r: tR, c: tC }; editIdx = null; setPltType('freight'); setOpMode('compact'); document.getElementById('modal-title').textContent = `Loc: ${COL_NAMES[tC-1]}${tR}`; document.getElementById('edit-modal').classList.add('active'); updatePicker(); }
+        function commitPlacement() { const q = parseInt(document.getElementById('in-qty').value)||1, car = document.getElementById('in-carrier').value, id = document.getElementById('in-id').value, dropDate = new Date().toLocaleDateString('en-GB'); if (currentType === 'freight' && editIdx === null && warehouseData.pallets.some(p => p.id === id)) { alert(`DUPLICATE: ID ${id} exists.`); return; } let vStep, hStep, rowPalletLimit; if (opMode === 'compact') { vStep = 2; hStep = 2; rowPalletLimit = 5; } else if (opMode === 'buffer') { vStep = 3; hStep = 3; rowPalletLimit = 4; } else { vStep = 6; hStep = 3; rowPalletLimit = 4; } let r = activeLoc.r, dropped = 0; while (dropped < q && r <= ROWS - 1) { for (let pIdx = 0; pIdx < rowPalletLimit; pIdx++) { if (dropped >= q) break; let targetCol = activeLoc.c - (pIdx * hStep); if (targetCol < 1) break; if (!isOcc(r, targetCol)) { warehouseData.pallets.push({ r, c: targetCol, qty: 1, carrier: currentType === 'empty' ? 'EMPTY' : car, id: currentType === 'empty' ? '' : id, date: dropDate, type: currentType, placementMode: opMode, stage: currentType === 'empty' ? 'empty' : null }); dropped++; } } r += vStep; } if(currentType === 'freight' && !GROUPS[id]) GROUPS[id] = { carrier: car, total: q, units: 0, isds: {}, open: false }; save(); closeModal(); render(); }
+        function switchView(v) { document.querySelectorAll('.section-view').forEach(s => s.style.display = 'none'); document.getElementById('view-' + v).style.display = 'flex'; document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('btn-active')); document.getElementById('btn-' + v).classList.add('btn-active'); if(v === 'manifest') renderAudit(); if(v === 'settings') renderAnalytics(); }
+        window.onmouseup = () => { if(moveState.active) { const dr = moveState.targetR - moveState.startR, dc = moveState.targetC - moveState.startC; let valid = true; moveState.selectedIndices.forEach(idx => { const p = warehouseData.pallets[idx]; let tr = p.r + dr, tc = p.c + dc; if(tr < 1 || tr > ROWS-1 || tc < 1 || tc > COLS-1 || isOcc(tr, tc, moveState.selectedIndices)) valid = false; }); if(valid) moveState.selectedIndices.forEach(idx => { warehouseData.pallets[idx].r += dr; warehouseData.pallets[idx].c += dc; }); moveState.active = false; moveState.selectedIndices = []; save(); render(); } };
         function startDrag(e, idx) { e.preventDefault(); e.stopPropagation(); if(!moveState.selectedIndices.includes(idx)) moveState.selectedIndices = [idx]; const p = warehouseData.pallets[idx]; moveState.startR = p.r; moveState.startC = p.c; moveState.active = true; }
         function updateGhosts(r, c) { const dr = r - moveState.startR, dc = c - moveState.startC; moveState.selectedIndices.forEach(idx => { const p = warehouseData.pallets[idx], g = document.getElementById(`plt-${idx}`); if(g) { g.style.left = `${(p.c + dc - 1) * UNIT + 1}px`; g.style.top = `${(p.r + dr - 1) * UNIT + 1}px`; } }); }
-        window.onmouseup = () => { if(moveState.active) { const dr = moveState.targetR - moveState.startR, dc = moveState.targetC - moveState.startC; let valid = true; moveState.selectedIndices.forEach(idx => { const p = warehouseData.pallets[idx]; let tr = p.r + dr, tc = p.c + dc; if(tr < 1 || tr > ROWS-1 || tc < 1 || tc > COLS-1 || isOcc(tr, tc, moveState.selectedIndices)) valid = false; }); if(valid) moveState.selectedIndices.forEach(idx => { warehouseData.pallets[idx].r += dr; warehouseData.pallets[idx].c += dc; }); moveState.active = false; moveState.selectedIndices = []; document.body.style.cursor = 'default'; save(); render(); } };
+        function selGroup(id) { if(!id) return; moveState.selectedIndices = []; warehouseData.pallets.forEach((p, i) => { if(p.id === id) moveState.selectedIndices.push(i); }); render(); }
+        function delPallet() { warehouseData.pallets.splice(editIdx, 1); save(); closeModal(); render(); }
+        function closeModal() { document.getElementById('edit-modal').classList.remove('active'); }
+        function toggleISA(id) { GROUPS[id].open = !GROUPS[id].open; renderAudit(); }
+        function syncC(id, val) { GROUPS[id].carrier = val.toUpperCase(); warehouseData.pallets.forEach(p => { if(p.id===id) p.carrier = val.toUpperCase(); }); save(); render(); }
+        function syncIsdC(isa, isd, val) { GROUPS[isa].isds[isd].carrier = val.toUpperCase(); save(); }
+        function detach(isaId, isdId) { const p = GROUPS[isaId], d = p.isds[isdId]; GROUPS[isdId] = { carrier: d.carrier + " (IND)", total: d.qty, units: d.units, isds: {[isdId]: d}, open: false }; p.total -= d.qty; delete p.isds[isdId]; if(p.total <= 0) delete GROUPS[isaId]; save(); renderAudit(); updatePicker(); }
+        function updatePicker() { const p = document.getElementById('shipment-picker'); if(!p) return; p.innerHTML = '<option value="">-- MANUAL --</option>'; Object.keys(GROUPS).forEach(id => { p.innerHTML += `<option value="${id}">${GROUPS[id].carrier} | ${id} (${GROUPS[id].total} PLT)</option>`; }); document.getElementById('picker-area').style.display = Object.keys(GROUPS).length > 0 ? 'block' : 'none'; }
+        function applyPicker() { const id = document.getElementById('shipment-picker').value; if(id) { const g = GROUPS[id]; document.getElementById('in-qty').value = g.total; document.getElementById('in-carrier').value = g.carrier; document.getElementById('in-id').value = id; } }
+        function setPltType(t) { currentType = t; document.getElementById('type-freight').classList.remove('active'); document.getElementById('type-empty').classList.remove('active'); document.getElementById(`type-${t}`).classList.add('active'); document.getElementById('picker-area').style.display = (t === 'freight' && Object.keys(GROUPS).length > 0) ? 'block' : 'none'; document.getElementById('carrier-wrap').style.opacity = t === 'empty' ? '0.3' : '1'; document.getElementById('id-wrap').style.opacity = t === 'empty' ? '0.3' : '1'; }
+        function setOpMode(m) { opMode = m; document.getElementById('mode-compact').classList.remove('active'); document.getElementById('mode-buffer').classList.remove('active'); document.getElementById('mode-breakdown').classList.remove('active'); document.getElementById(`mode-${m}`).classList.add('active'); }
+        function isOcc(r, c, ignore = []) { return warehouseData.pallets.some((p, i) => { if(ignore.includes(i)) return false; return !(r + 1 < p.r || r > p.r + 1 || c + 1 < p.c || c > p.c + 1); }); }
+        function exportJSON() { const masterData = { v: "5.40", warehouseData, GROUPS, stowHistory, analyticsSnapshots, layoutSettings }; const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(masterData)); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", `RP_MASTER_${new Date().getTime()}.json`); dl.click(); }
+        function handleRestore(input) { const fr = new FileReader(); fr.onload = (e) => { try { const d = JSON.parse(e.target.result); if(d.warehouseData){ warehouseData=d.warehouseData; GROUPS=d.GROUPS; stowHistory=d.stowHistory; analyticsSnapshots=d.analyticsSnapshots; layoutSettings=d.layoutSettings; }else{ warehouseData=d; } save(); load(); buildGrid(); render(); updatePicker(); switchView('grid'); } catch(err){alert("Fail");} }; fr.readAsText(input.files[0]); }
+        function handleCSV(input) { const fr = new FileReader(); fr.onload = (e) => { const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'}); const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1}); GROUPS = {}; for(let i=1; i<rows.length; i++) { const l = rows[i]; if(!l || !l[2]) continue; const isa = String(l[2]), isd = String(l[3]), carrier = String(l[4]).toUpperCase(), qty = parseInt(l[6])||1; if(!GROUPS[isa]) GROUPS[isa] = { carrier, total: 0, units: 0, isds: {}, open: false }; GROUPS[isa].total += qty; GROUPS[isa].units += parseInt(l[7])||0; GROUPS[isa].isds[isd] = { carrier, qty, units: parseInt(l[7])||0 }; } save(); updatePicker(); switchView('manifest'); }; fr.readAsArrayBuffer(input.files[0]); }
     </script>
 </body>
 </html>
