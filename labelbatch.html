@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABELBATCH V6.3</title>
+    <title>LABELBATCH V6.0</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -14,50 +14,61 @@
             --accent-blue: #58a6ff; --accent-red: #f85149; --border-color: #30363d; --radius-sm: 4px; 
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); padding: 40px; max-width: 1400px; margin: 0 auto; }
-        
-        /* TOP BAR & TRAY */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         h1 { font-family: "Segoe UI Variable Display", sans-serif; font-weight: 400; font-size: 1.8rem; letter-spacing: 4px; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 15px; color: #fff; }
         h1::before { content: ""; display: block; width: 6px; height: 28px; background: var(--accent-green); }
+        
         .action-tray { display: flex; align-items: center; gap: 10px; }
         .tray-item { display: flex; flex-direction: column; align-items: center; width: 60px; }
         .icon-btn { background: var(--bg-panel); border: 1px solid var(--border-color); color: var(--text-main); width: 44px; height: 40px; cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: 0.2s; padding: 0; }
         .icon-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
         .tray-label { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* ACTIONS & SEARCH */
         .search-container { margin-bottom: 25px; }
         .search-bar { width: 100%; background: var(--bg-panel); border: 1px solid var(--border-color); color: #fff; padding: 12px 15px; border-radius: var(--radius-sm); font-size: 0.95rem; outline: none; box-sizing: border-box; }
+        
         .global-actions { display: none; background: var(--bg-panel); border: 1px solid var(--border-color); padding: 15px 20px; margin-bottom: 30px; border-radius: var(--radius-sm); align-items: center; justify-content: space-between; gap: 10px; }
         .btn-nav { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); }
         .btn-nav:hover { background: #30363d; color: #fff; }
         .btn-print-batch { background: var(--accent-green); color: #0d1117; font-weight: 800; padding: 10px 20px; border: none; border-radius: var(--radius-sm); cursor: pointer; text-transform: uppercase; }
         
-        /* APPOINTMENT CARDS */
+        .mode-switch { background: transparent; border: 1px solid #30363d; color: var(--accent-blue); font-size: 0.65rem; font-weight: 900; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; text-transform: uppercase; transition: 0.2s; }
+        .mode-isa { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .mode-isd { border-color: var(--text-muted); color: var(--text-muted); }
+
         .isa-bundle { background: var(--bg-panel); border: 1px solid var(--border-color); margin-bottom: 15px; border-radius: var(--radius-sm); overflow: hidden; }
         .isa-bundle.selected { border-left: 4px solid var(--accent-green); }
         .isa-header { background: var(--bg-header); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
         .header-main-area { display: flex; align-items: center; flex-grow: 1; cursor: pointer; }
+        
         .dispatch-table { width: 100%; border-collapse: collapse; background: #0d1117; }
         .dispatch-table td { padding: 12px 20px; border-bottom: 1px solid var(--border-color); color: var(--text-main); vertical-align: middle; }
+        
         .qty-input, .carrier-edit { background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 6px; border-radius: var(--radius-sm); outline: none; }
-        .po-textarea { width: 300px !important; height: 60px; color: var(--accent-blue) !important; font-weight: 700; font-size: 0.8rem; resize: vertical; display: block; background: var(--bg-input); border: 1px solid var(--border-color); padding: 8px; }
-        .mode-switch { background: transparent; border: 1px solid #30363d; color: var(--accent-blue); font-size: 0.65rem; font-weight: 900; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; text-transform: uppercase; }
+        .carrier-edit { margin-left: 15px; width: 180px; background-color: #010409 !important; font-weight: 600; text-transform: uppercase; }
+        
+        /* UPDATED: VERTICAL PO TEXTAREA */
+        .po-textarea { 
+            width: 300px !important; 
+            height: 60px; 
+            color: var(--accent-blue) !important; 
+            font-weight: 700; 
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            line-height: 1.2;
+            padding: 8px;
+            resize: vertical;
+            display: block;
+        }
+        
         .collapse-icon { transition: transform 0.2s; color: var(--text-muted); margin-right: 12px; }
         .collapsed .collapse-icon { transform: rotate(-90deg); }
         .collapsed .bundle-content { display: none; }
-        
-        /* MODAL STYLES */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: var(--bg-panel); border: 1px solid var(--border-color); padding: 30px; border-radius: 8px; width: 450px; }
-        .modal-box h2 { margin-top: 0; color: var(--accent-blue); font-size: 1.2rem; letter-spacing: 1px; }
-        .modal-field { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-        .modal-field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; }
-        .modal-field input, .modal-field textarea { background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 4px; outline: none; }
-        .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-
         .upload-zone { background: var(--bg-panel); border: 1px dashed var(--border-color); padding: 40px; text-align: center; margin-bottom: 40px; cursor: pointer; border-radius: var(--radius-sm); }
+        
         .footer-actions { display: flex; justify-content: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border-color); }
+        .btn-reset-main { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); padding: 12px 30px; font-weight: 800; font-size: 0.8rem; border-radius: var(--radius-sm); cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; transition: 0.2s; }
+        .btn-reset-main:hover { background: var(--accent-red); color: #fff; }
     </style>
 </head>
 <body onmousemove="resetIdleTimer()" onkeydown="resetIdleTimer()">
@@ -65,13 +76,7 @@
     <div class="top-bar">
         <h1>RP LABELBATCH</h1>
         <div class="action-tray">
-            <div class="tray-item">
-                <label class="icon-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <input type="file" id="jsonLoader" accept=".json" style="display:none" onchange="loadData(this)">
-                </label>
-                <span class="tray-label">LOAD</span>
-            </div>
+            <div class="tray-item"><label class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><input type="file" id="jsonLoader" accept=".json" style="display:none" onchange="loadData(this)"></label><span class="tray-label">LOAD</span></div>
             <div class="tray-item"><button class="icon-btn" onclick="saveData()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button><span class="tray-label">SAVE</span></div>
             <div class="tray-item"><button class="icon-btn" onclick="saveAsData()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></button><span class="tray-label">SAVE AS</span></div>
             <div class="tray-item"><button class="icon-btn" onclick="window.location.href='index.html'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg></button><span class="tray-label">HUB</span></div>
@@ -82,15 +87,8 @@
     <div class="search-container"><input type="text" id="mainSearch" class="search-bar" placeholder="SEARCH (Ctrl + F)..." oninput="handleSearch()"></div>
 
     <div id="globalActions" class="global-actions">
-        <div>
-            <button class="btn-print-batch" style="background: var(--accent-blue); padding: 8px 16px; margin-right: 10px;" onclick="manualAddAppointment()">+ NEW APPOINTMENT</button>
-            <button class="btn-nav" onclick="selectAll(true)">SELECT ALL</button>
-            <button class="btn-nav" onclick="expandAll(true)">EXPAND ALL</button>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button class="btn-nav" style="border:1px solid #fff; color:#fff;" onclick="printSelectedSatchels()">SATCHELS</button>
-            <button class="btn-print-batch" onclick="printSelectedBundles()">PRINT SELECTED</button>
-        </div>
+        <div><button class="btn-nav" onclick="selectAll(true)">SELECT ALL</button><button class="btn-nav" onclick="expandAll(true)">EXPAND ALL</button></div>
+        <div style="display:flex; gap:10px;"><button class="btn-nav" style="border:1px solid #fff; color:#fff;" onclick="printSelectedSatchels()">SATCHELS</button><button class="btn-print-batch" onclick="printSelectedBundles()">PRINT SELECTED</button></div>
     </div>
 
     <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileUpload').click()"><span id="uploadText">CLICK TO UPLOAD SCHEDULE (.XLSX / .CSV)</span><input type="file" id="fileUpload" accept=".csv, .xlsx, .xls" style="display:none" onchange="handleFile(this)"></div>
@@ -100,30 +98,19 @@
         <button class="btn-reset-main" onclick="resetAllData()">Reset Manifest List</button>
     </div>
 
-    <div id="addModal" class="modal-overlay">
-        <div class="modal-box">
-            <h2>NEW APPOINTMENT</h2>
-            <div class="modal-field"><label>ISA ID</label><input type="text" id="m_isa"></div>
-            <div class="modal-field"><label>CARRIER</label><input type="text" id="m_carrier"></div>
-            <div class="modal-field"><label>DATE</label><input type="text" id="m_date"></div>
-            <div class="modal-field"><label>TIME</label><input type="text" id="m_time"></div>
-            <div class="modal-field"><label>ISD(s) - One per line</label><textarea id="m_isds" style="height:80px;"></textarea></div>
-            <div class="modal-btns">
-                <button class="btn-nav" onclick="closeModal()">CANCEL</button>
-                <button class="btn-print-batch" onclick="processManualEntry()">ADD TO LIST</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let ISA_GROUPS = {}, activeFileHandle = null, searchQuery = "";
         
+        // UPDATED: ZPL PO BLOCK NOW SUPPORTS 3 LINES (^FB752,3) WITH INSET MARGINS
         const ZPL = { 
             getHeader: (text, date, time) => `^XA^PW812^LL1200^FO30,40^FB752,2,10,C,0^A0N,100,100^FD${text.toUpperCase()}^FS^FO30,150^FB752,1,0,C,0^A0N,90,90^FD${date}^FS^FO30,240^FB752,1,0,C,0^A0N,50,50^FD(${time})^FS`, 
             label: (header, date, time, id, po, current, total, isMaster) => { 
                 const count = current === 0 ? "0 / 1" : `${current} / ${total}`; 
                 let z = ZPL.getHeader(header, date, time) + `^FO30,330^FB752,1,0,C,0^A0N,30,30^FD${isMaster?"APPOINTMENT":"SHIPMENT"} ID^FS^FO90,360^BY4,3,300^BCN,300,N,N,N^FD${id}^FS^FO30,670^FB752,1,0,C,0^A0N,60,60^FD${id}^FS`; 
-                if(po && po.trim() !== "") z += `^FO30,760^FB752,3,0,C,0^A0N,40,40^FDPO: ${po.toUpperCase().replace(/\n/g, '\\&')}^FS`; 
+                if(po && po.trim() !== "") {
+                    // Multi-line PO support
+                    z += `^FO30,760^FB752,3,0,C,0^A0N,40,40^FDPO: ${po.toUpperCase().replace(/\n/g, '\\&')}^FS`; 
+                }
                 z += `^FO30,1020^FB752,1,0,C,0^A0N,150,150^FD${count}^FS^XZ`; 
                 return z; 
             } 
@@ -132,95 +119,109 @@
         function syncToBrowser() { localStorage.setItem('RP_ACTIVE_ISA', JSON.stringify(ISA_GROUPS)); }
         window.onload = () => { const saved = localStorage.getItem('RP_ACTIVE_ISA'); if(saved) { ISA_GROUPS = JSON.parse(saved); renderDashboard(); } };
 
-        /* MODAL LOGIC */
-        function manualAddAppointment() {
-            const now = new Date();
-            document.getElementById('m_date').value = now.getDate() + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][now.getMonth()];
-            document.getElementById('m_time').value = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('addModal').style.display = 'flex';
-        }
-        function closeModal() { document.getElementById('addModal').style.display = 'none'; }
-        function processManualEntry() {
-            const id = document.getElementById('m_isa').value.trim();
-            const carrier = document.getElementById('m_carrier').value.trim().toUpperCase();
-            const date = document.getElementById('m_date').value.trim();
-            const time = document.getElementById('m_time').value.trim();
-            const isds = document.getElementById('m_isds').value.trim().split('\n').filter(x => x);
-            if (!id || !carrier || !isds.length) return alert("Required fields missing.");
-            ISA_GROUPS[id] = { id, carrier, date, time, selected: true, collapsed: false, printMode: 'ISD', jobs: isds.map(i => ({ isd: i.trim(), qty: 1, po: '' })) };
-            syncToBrowser(); renderDashboard(); closeModal();
-        }
+        function toggleMode(id) { ISA_GROUPS[id].printMode = (ISA_GROUPS[id].printMode === 'ISA' ? 'ISD' : 'ISA'); syncToBrowser(); renderDashboard(); }
+        function resetAllData() { if(confirm("DANGER: This will permanently wipe all loaded manifests and custom PO numbers. Continue?")) { ISA_GROUPS = {}; syncToBrowser(); location.reload(); } }
 
         function renderDashboard() {
             const container = document.getElementById('dashboardArea'); container.innerHTML = "";
             const entries = Object.entries(ISA_GROUPS);
-            document.getElementById('globalActions').style.display = entries.length ? 'flex' : 'none';
-            document.getElementById('uploadZone').style.display = entries.length ? 'none' : 'block';
-            document.getElementById('footerActions').style.display = entries.length ? 'flex' : 'none';
-
+            if (entries.length > 0) {
+                document.getElementById('globalActions').style.display = 'flex';
+                document.getElementById('uploadZone').style.display = 'none';
+                document.getElementById('footerActions').style.display = 'flex';
+            } else {
+                document.getElementById('globalActions').style.display = 'none';
+                document.getElementById('uploadZone').style.display = 'block';
+                document.getElementById('footerActions').style.display = 'none';
+            }
             entries.forEach(([key, b]) => {
-                if (searchQuery && !(b.id.toLowerCase().includes(searchQuery) || b.carrier.toLowerCase().includes(searchQuery))) return;
+                if (searchQuery && !(b.id.toLowerCase().includes(searchQuery) || b.carrier.toLowerCase().includes(searchQuery) || b.jobs.some(j => j.isd.toLowerCase().includes(searchQuery)))) return;
                 const mode = b.printMode || 'ISD';
                 const card = document.createElement('div'); card.className = `isa-bundle ${b.selected ? 'selected' : ''} ${b.collapsed ? 'collapsed' : ''}`;
-                const rows = b.jobs.map((j, idx) => `<tr><td width="20%">ISD: <strong>${j.isd}</strong></td><td width="40%"><textarea class="po-textarea" onchange="ISA_GROUPS['${key}'].jobs[${idx}].po=this.value;syncToBrowser()">${j.po || ''}</textarea></td><td align="center"><input type="number" class="qty-input" style="width:60px" value="${j.qty || 0}" onchange="ISA_GROUPS['${key}'].jobs[${idx}].qty=parseInt(this.value);syncToBrowser();renderDashboard()"></td><td align="right"><button class="btn-nav" onclick="printSingle('${key}', ${idx})">PRINT</button></td></tr>`).join('');
-                card.innerHTML = `<div class="isa-header"><div class="header-main-area" onclick="toggleCollapse('${key}')"><span class="collapse-icon">▼</span><strong>${b.id}</strong><input type="text" class="carrier-edit" value="${b.carrier}" onclick="event.stopPropagation()" onchange="ISA_GROUPS['${key}'].carrier=this.value;syncToBrowser()"><button class="mode-switch mode-${mode.toLowerCase()}" onclick="event.stopPropagation(); toggleMode('${key}')">${mode}</button></div><div style="display:flex; align-items:center; gap:10px;"><input type="checkbox" ${b.selected ? 'checked' : ''} onchange="ISA_GROUPS['${key}'].selected=this.checked;syncToBrowser();renderDashboard()"><button class="btn-nav" onclick="printSatchel('${key}')">SATCHEL</button><button class="btn-print-batch" onclick="printBundle('${key}')">BUNDLE</button></div></div><div class="bundle-content"><table class="dispatch-table"><tbody>${rows}</tbody></table></div>`;
+                
+                // UPDATED: SWAPPED INPUT FOR TEXTAREA FOR PO ENTRIES
+                let rows = b.jobs.map((j, idx) => `<tr><td width="20%">ISD: <strong>${j.isd}</strong></td><td width="40%"><textarea class="qty-input po-textarea" placeholder="Enter multiple POs..." onchange="ISA_GROUPS['${key}'].jobs[${idx}].po=this.value;syncToBrowser()">${j.po || ''}</textarea></td><td align="center"><input type="number" class="qty-input" style="width:60px" value="${j.qty || 0}" onchange="ISA_GROUPS['${key}'].jobs[${idx}].qty=parseInt(this.value);syncToBrowser();renderDashboard()"></td><td align="center"><input type="number" class="qty-input" style="width:60px" value="${j.items || 0}" onchange="ISA_GROUPS['${key}'].jobs[${idx}].items=parseInt(this.value);syncToBrowser()"></td><td align="right"><button class="btn-nav" onclick="printSingle('${key}', ${idx})">PRINT</button></td></tr>`).join('');
+                
+                card.innerHTML = `<div class="isa-header"><div class="header-main-area" onclick="toggleCollapse('${key}')"><span class="collapse-icon">▼</span><strong>${b.id}</strong><span style="color:var(--accent-green); font-size:0.8rem; margin-left:10px;">${b.time}</span><input type="text" class="carrier-edit" value="${b.carrier}" onclick="event.stopPropagation()" onchange="ISA_GROUPS['${key}'].carrier=this.value;syncToBrowser()"><button class="mode-switch mode-${mode.toLowerCase()}" onclick="event.stopPropagation(); toggleMode('${key}')">${mode}</button></div><div style="display:flex; align-items:center; gap:10px;"><input type="checkbox" ${b.selected ? 'checked' : ''} onchange="ISA_GROUPS['${key}'].selected=this.checked;syncToBrowser();renderDashboard()"><button class="btn-nav" onclick="printSatchel('${key}')">SATCHEL</button><button class="btn-print-batch" style="padding: 8px 16px; font-size: 0.85rem;" onclick="printBundle('${key}')">BUNDLE</button></div></div><div class="bundle-content"><table class="dispatch-table"><tbody>${rows}</tbody></table></div>`;
                 container.appendChild(card);
             });
         }
 
-        /* FILE & PRINT LOGIC */
-        async function saveData() { 
-            if (window.showSaveFilePicker && activeFileHandle) {
-                try {
-                    const w = await activeFileHandle.createWritable(); await w.write(JSON.stringify(ISA_GROUPS, null, 2)); await w.close();
-                    document.getElementById('fileStatus').innerText = "SAVE COMPLETE"; setTimeout(() => document.getElementById('fileStatus').innerText = "SESSION SYNC ACTIVE", 2000); return;
-                } catch (e) {}
-            }
-            saveAsData();
-        }
-        async function saveAsData() { 
-            const dataStr = JSON.stringify(ISA_GROUPS, null, 2);
-            if (window.showSaveFilePicker) {
-                try { activeFileHandle = await window.showSaveFilePicker({ suggestedName: `BATCH.json` }); const w = await activeFileHandle.createWritable(); await w.write(dataStr); await w.close(); } catch (e) {}
-            } else {
-                const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob);
-                const link = document.createElement("a"); link.href = url; link.download = "BATCH.json"; link.click();
-            }
-        }
-        function loadData(input) { const r = new FileReader(); r.onload = (e) => { ISA_GROUPS = JSON.parse(e.target.result); syncToBrowser(); renderDashboard(); input.value = ''; }; r.readAsText(input.files[0]); }
-
-        function launchPrinter(list) { 
-            const pWin = window.open('', '_blank', 'width=800,height=900'); 
-            const urls = list.map(z => `https://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/${encodeURIComponent(z)}`); 
-            pWin.document.write(`<html><head><style>@page { size: 101.6mm 152.4mm; margin: 0; } body { margin: 0; text-align: center; } img { width: 101.6mm; height: 152.4mm; display: block; page-break-after: always; }</style></head><body><div id="container"></div><script>const urls = ${JSON.stringify(urls)}; function loadOne(i) { if(i >= urls.length) { window.print(); window.close(); return; } const img = new Image(); img.src = urls[i]; img.onload = () => { document.getElementById('container').appendChild(img); loadOne(i+1); }; } loadOne(0);<\/script></body></html>`); 
-            pWin.document.close(); 
-        }
-
-        function printSingle(id, idx) { const b = ISA_GROUPS[id], j = b.jobs[idx], list = []; for(let i=1; i<=(j.qty||1); i++) list.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty||1, false)); launchPrinter(list); }
-        function printBundle(id) { const b = ISA_GROUPS[id], labels = []; b.jobs.forEach(j => { for(let i=1; i<=(j.qty||1); i++) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty||1, false)); }); launchPrinter(labels); }
-        function printSelectedBundles() { let mega = []; Object.keys(ISA_GROUPS).filter(k => ISA_GROUPS[k].selected).forEach(id => { const b = ISA_GROUPS[id]; b.jobs.forEach(j => { for(let i=1; i<=(j.qty||1); i++) mega.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty||1, false)); }); }); launchPrinter(mega); }
-
+        /* Essential Print and File Logic Preserved from V5.8 Baseline */
+        function launchPrinter(list) { const pWin = window.open('', '_blank', 'width=800,height=900'); const urls = list.map(z => `https://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/${encodeURIComponent(z)}`); pWin.document.write(`<html><head><style>@page { size: 101.6mm 152.4mm; margin: 0; } body { margin: 0; background: #000; color: #10b981; text-align: center; font-family: monospace; } img { width: 101.6mm; height: 152.4mm; display: block; page-break-after: always; margin: 0 auto; } .st { padding: 40px; font-size: 24px; border-bottom: 1px solid #10b981; margin-bottom: 20px; } @media print { .st { display: none; } }</style></head><body><div id="status" class="st">INITIALIZING...</div><div id=\"container\"></div><script>const urls = ${JSON.stringify(urls)}; const status = document.getElementById('status'); const container = document.getElementById('container'); function loadOne(i) { if(i >= urls.length) { status.innerText = "READY"; setTimeout(() => { window.print(); window.close(); }, 800); return; } status.innerText = "GENERATING LABEL " + (i + 1) + "/" + urls.length; const img = new Image(); img.src = urls[i]; img.onload = () => { document.getElementById('container').appendChild(img); loadOne(i+1); }; img.onerror = () => { setTimeout(() => loadOne(i), 1000); }; } loadOne(0);<\/script></body></html>`); pWin.document.close(); }
+        function printSingle(id, idx) { const b = ISA_GROUPS[id], j = b.jobs[idx], list = []; if(j.qty === 0) list.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1, false)); else for(let i=1; i<=j.qty; i++) list.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty, false)); launchPrinter(list); }
+        function printBundle(id) { const b = ISA_GROUPS[id], labels = []; if (b.printMode === 'ISA') { const total = b.jobs.reduce((s, j) => s + (j.qty > 0 ? j.qty : 0), 0); if (total === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", 0, 1, true)); else for (let i = 1; i <= total; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", i, total, true)); } else { b.jobs.forEach(j => { if(j.qty === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1, false)); else for(let i=1; i<=j.qty; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty, false)); }); } launchPrinter(labels); }
+        function printSelectedBundles() { let mega = []; Object.keys(ISA_GROUPS).filter(k => ISA_GROUPS[k].selected).forEach(id => { const b = ISA_GROUPS[id]; if (b.printMode === 'ISA') { const total = b.jobs.reduce((s, j) => s + (j.qty > 0 ? j.qty : 0), 0); if (total === 0) mega.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", 0, 1, true)); else for (let i = 1; i <= total; i++) mega.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", i, total, true)); } else { b.jobs.forEach(j => { if(j.qty === 0) mega.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1, false)); else for(let i=1; i<=j.qty; i++) mega.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty, false)); }); } }); launchPrinter(mega); }
         function handleFile(input) { const r = new FileReader(); r.onload = (e) => { const d = new Uint8Array(e.target.result); const wb = XLSX.read(d, {type: 'array'}); parseData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1})); }; r.readAsArrayBuffer(input.files[0]); }
-        function parseData(rows) { for(let i=1; i<rows.length; i++) { const r = rows[i]; if(!r || !r[2]) continue; const id = String(r[2]).trim(); if(!ISA_GROUPS[id]) ISA_GROUPS[id] = { id, carrier: String(r[4]||"INBOUND").toUpperCase(), date: formatShortDate(r[0]), time: formatTime(r[1]), selected: true, collapsed: false, jobs: [], printMode: 'ISD' }; ISA_GROUPS[id].jobs.push({ isd: String(r[3]), qty: parseInt(r[6]) || 0, po: '' }); } syncToBrowser(); renderDashboard(); }
-        
-        function getSatchelPageHtml(id) { 
-            const b = ISA_GROUPS[id]; const totalPallets = b.jobs.reduce((s,j)=>s+(j.qty||0), 0); 
-            const tableRows = b.jobs.slice(0, 10).map(j => `<tr><td>${j.isd}</td><td>${j.po||'-'}</td><td align="center">${j.qty}</td></tr>`).join(''); 
-            return `<div class="satchel-page"><div class="back-half"><h3>Manifest</h3><table><thead><tr><th>ISD</th><th>PO#</th><th>PLT</th></tr></thead><tbody>${tableRows}</tbody></table></div><div class="front-half"><div style="display: flex; align-items: stretch; width: 100%; gap: 30px;"><div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;"><div style="font-size:3.3rem; font-weight:800;">${b.carrier}</div><div style="border-top: 4px solid #000; padding-top: 10px;"><div style="font-size:1.8rem; font-weight:700;">ISA: ${b.id}</div><div style="font-size:1.4rem;">${b.date} | ${b.time}</div></div></div><div style="border: 6px solid #000; padding: 12px; text-align: center; min-width: 140px;"><div style="font-size: 1.2rem; font-weight: 800; border-bottom: 3px solid #000; margin-bottom: 8px;">PALLETS</div><div style="font-size: 3.5rem; font-weight: 900;">${totalPallets}</div></div></div></div></div>`; 
-        }
-        function writeSatchelBatch(win, ids) { let content = ids.map(id => getSatchelPageHtml(id)).join(''); win.document.write(`<html><head><style>@page { size: A4 portrait; margin: 0; } body { font-family: 'Inter', sans-serif; margin: 0; } .satchel-page { height: 296mm; width: 210mm; display: flex; flex-direction: column; page-break-after: always; } .back-half { height: 148mm; padding: 15mm; } .front-half { height: 148mm; padding: 20mm; transform: rotate(180deg); border-top: 1px dashed #ccc; } table { width: 100%; border-collapse: collapse; } th, td { border-bottom: 1px solid #000; padding: 8px; }</style></head><body>${content}<script>window.onload = () => { window.print(); window.close(); };<\/script></body></html>`); win.document.close(); }
-        function printSatchel(id) { writeSatchelBatch(window.open('', '_blank'), [id]); }
-        function printSelectedSatchels() { const sel = Object.keys(ISA_GROUPS).filter(k => ISA_GROUPS[k].selected); if (sel.length) writeSatchelBatch(window.open('', '_blank'), sel); }
-        
+        function parseData(rows) { for(let i=1; i<rows.length; i++) { const r = rows[i]; if(!r || !r[2]) continue; const id = String(r[2]).trim(); if(!ISA_GROUPS[id]) ISA_GROUPS[id] = { id, carrier: r[4] ? String(r[4]).toUpperCase() : "INBOUND", date: formatShortDate(r[0]), time: formatTime(r[1]), mode: 'expanded', selected: true, collapsed: false, jobs: [], printMode: 'ISD' }; ISA_GROUPS[id].jobs.push({ isd: String(r[3]), qty: parseInt(r[6]) || 0, items: parseInt(r[7]) || 0, po: '', printed: false }); } syncToBrowser(); renderDashboard(); }
+        async function saveData() { if (Object.keys(ISA_GROUPS).length === 0) return; if (!activeFileHandle) return saveAsData(); const w = await activeFileHandle.createWritable(); await w.write(JSON.stringify(ISA_GROUPS)); await w.close(); alert("Saved."); }
+        async function saveAsData() { try { const h = await window.showSaveFilePicker({ suggestedName: `BATCH_${new Date().toLocaleDateString('en-GB').replace(/\\//g,'.')}.json` }); activeFileHandle = h; saveData(); } catch (e) {} }
+        function loadData(i) { const r = new FileReader(); r.onload = (e) => { ISA_GROUPS = JSON.parse(e.target.result); syncToBrowser(); renderDashboard(); }; r.readAsText(i.files[0]); }
         function handleSearch() { searchQuery = document.getElementById('mainSearch').value.toLowerCase(); renderDashboard(); }
         function selectAll(v) { Object.keys(ISA_GROUPS).forEach(k => ISA_GROUPS[k].selected = v); syncToBrowser(); renderDashboard(); }
         function expandAll(v) { Object.keys(ISA_GROUPS).forEach(k => ISA_GROUPS[k].collapsed = !v); renderDashboard(); }
         function toggleCollapse(id) { ISA_GROUPS[id].collapsed = !ISA_GROUPS[id].collapsed; renderDashboard(); }
-        function formatShortDate(n) { if (typeof n === 'number') { const d = new Date((n - 25569) * 86400 * 1000); return d.getDate() + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getMonth()]; } return String(n); }
-        function formatTime(n) { if (typeof n === 'number') { const s = Math.round(n * 86400), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`; } return String(n); }
-        function resetAllData() { if(confirm("Permanently wipe list?")) { ISA_GROUPS = {}; syncToBrowser(); location.reload(); } }
-        let idleTimer; function resetIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => syncToBrowser(), 60000); }
+        function formatShortDate(n) { if (typeof n === 'number') { const d = new Date((n - 25569) * 86400 * 1000); return d.getDate() + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getMonth()]; } return String(n); }
+        function formatTime(n) { if (!n) return ""; if (typeof n === 'number') { const s = Math.round(n * 86400), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`; } return String(n); }
+        let idleTimer; function resetIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => { syncToBrowser(); }, 600000); }
+       function getSatchelPageHtml(id) { 
+    const b = ISA_GROUPS[id]; 
+    const totalPallets = b.jobs.reduce((s,j)=>s+j.qty, 0); 
+    const totalItems = b.jobs.reduce((s,j)=>s+(j.items || 0), 0); 
+    const displayJobs = b.jobs.slice(0, 10); 
+    const hasMore = b.jobs.length > 10; 
+
+    let tableRows = displayJobs.map(j => `
+        <tr>
+            <td style="padding:6px 12px; border-bottom:1px solid #000; font-size:0.85rem;">${j.isd}</td>
+            <td style="padding:6px 12px; border-bottom:1px solid #000; font-size:0.85rem;">${j.po || '-'}</td>
+            <td style="padding:6px 12px; border-bottom:1px solid #000; font-size:0.85rem; text-align:center; font-weight:bold;">${j.qty}</td>
+            <td style="padding:6px 12px; border-bottom:1px solid #000; font-size:0.85rem; text-align:center;">${j.items || 0}</td>
+        </tr>`).join(''); 
+
+    if (hasMore) { 
+        tableRows += `<tr><td colspan="4" style="padding:10px; text-align:center; font-weight:800; font-size:0.9rem; letter-spacing:1px; color:#444;">[See Appointment Information]</td></tr>`; 
+    } 
+
+    return `
+    <div class="satchel-page">
+        <div class="back-half">
+            <h3>Detailed Manifest</h3>
+            <table>
+                <thead>
+                    <tr><th>ISD Shipment</th><th>PO#</th><th style="text-align:center">PLT</th><th style="text-align:center">ITM</th></tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+            <div class="summary">
+                <span>PALLETS: ${totalPallets}</span>
+                <span>ITEMS: ${totalItems}</span>
+            </div>
+        </div>
+          <div class="front-half">
+            <div style="display: flex; align-items: stretch; width: 100%; gap: 30px;">
+                
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="carrier-primary" style="font-size:3.3rem; margin: 0; padding: 0;">${b.carrier}</div>
+                    
+                    <div style="border-top: 4px solid #000; padding-top: 10px; margin-top: 10px;">
+                        <div style="font-size:1.8rem; font-weight: 700;">ISA: ${b.id}</div>
+                        <div class="date-time" style="font-size:1.4rem; font-weight: 500;">${b.date} &nbsp;|&nbsp; ${b.time}</div>
+                    </div>
+                </div>
+
+                <div style="border: 6px solid #000; padding: 12px; text-align: center; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="font-size: 1.2rem; font-weight: 800; text-transform: uppercase; border-bottom: 3px solid #000; margin-bottom: 8px; padding-bottom: 4px; letter-spacing: 1px;">Pallets</div>
+                    <div style="font-size: 3.5rem; font-weight: 900; line-height: 0.85;">${totalPallets}</div>
+                </div>
+
+            </div>
+        </div>
+    </div>`; 
+}
+        function writeSatchelBatch(win, ids) { let content = ids.map(id => getSatchelPageHtml(id)).join(''); win.document.write(`<html><head><style>@page { size: A4 portrait; margin: 0; } body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; color: #000; } .satchel-page { height: 296mm; width: 209mm; display: flex; flex-direction: column; overflow: hidden; page-break-after: always; } .back-half { height: 148.5mm; padding: 15mm 20mm; box-sizing: border-box; overflow: hidden; } .back-half h3 { margin: 0 0 10px 0; font-size: 1.2rem; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 5px; } .front-half { height: 148.5mm; padding: 20mm; box-sizing: border-box; display: flex; flex-direction: column; transform: rotate(180deg); justify-content: flex-start; padding-top: 10mm; } .carrier-primary { font-weight: 800; line-height: 0.85; margin-bottom: 12px; text-transform: uppercase; } .isa-secondary { font-weight: 600; border-top: 3px solid #000; padding-top: 8px; margin-bottom: 6px; } .date-time { color: #333; } table { width: 100%; border-collapse: collapse; margin-top: 5px; } th { text-align: left; padding: 8px 12px; border-bottom: 2px solid #000; font-size: 0.75rem; text-transform: uppercase; } .summary { margin-top: 15px; display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; border-top: 1px solid #000; padding-top: 8px; }</style></head><body>${content}<script>window.onload = () => { window.print(); window.close(); };<\/script></body></html>`); win.document.close(); }
+        function printSatchel(id) { const sWin = window.open('', '_blank', 'width=900,height=1000'); writeSatchelBatch(sWin, [id]); }
+        function printSelectedSatchels() { const sel = Object.keys(ISA_GROUPS).filter(k => ISA_GROUPS[k].selected); if (!sel.length) return; const sWin = window.open('', '_blank', 'width=900,height=1000'); writeSatchelBatch(sWin, sel); }
     </script>
 </body>
 </html>
-
