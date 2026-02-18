@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABELBATCH V7.0</title>
+    <title>LABELBATCH V6.9</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -83,7 +83,7 @@
             <div class="modal-field"><label>CARRIER</label><input type="text" id="m_carrier"></div>
             <div class="modal-field"><label>DATE</label><input type="text" id="m_date"></div>
             <div class="modal-field"><label>TIME</label><input type="text" id="m_time"></div>
-            <div class="modal-field"><label>ISD(s) - One per line</label><textarea id="m_isds" style="height:80px;"></textarea></div>
+            <div class="modal-field"><label>ISD(s) - One per line</label><textarea id="m_isds" style="height:80px;" placeholder="7000123&#10;7000456"></textarea></div>
             <div class="modal-btns"><button class="btn-nav" onclick="closeAddModal()">CANCEL</button><button class="btn-print-batch" onclick="processManualEntry()">ADD TO LIST</button></div>
         </div>
     </div>
@@ -92,9 +92,9 @@
         let ISA_GROUPS = {}, searchQuery = "";
         const ZPL = { 
             getHeader: (text, date, time) => `^XA^PW812^LL1200^FO30,40^FB752,2,10,C,0^A0N,100,100^FD${text.toUpperCase()}^FS^FO30,150^FB752,1,0,C,0^A0N,90,90^FD${date}^FS^FO30,240^FB752,1,0,C,0^A0N,50,50^FD(${time})^FS`, 
-            label: (header, date, time, id, po, current, total, isMaster) => { 
+            label: (header, date, time, id, po, current, total) => { 
                 const count = current === 0 ? "0 / 1" : `${current} / ${total}`; 
-                let z = ZPL.getHeader(header, date, time) + `^FO30,330^FB752,1,0,C,0^A0N,30,30^FD${isMaster?"APPOINTMENT":"SHIPMENT"} ID^FS^FO90,360^BY4,3,300^BCN,300,N,N,N^FD${id}^FS^FO30,670^FB752,1,0,C,0^A0N,60,60^FD${id}^FS`; 
+                let z = ZPL.getHeader(header, date, time) + `^FO30,330^FB752,1,0,C,0^A0N,30,30^FDSHIPMENT ID^FS^FO90,360^BY4,3,300^BCN,300,N,N,N^FD${id}^FS^FO30,670^FB752,1,0,C,0^A0N,60,60^FD${id}^FS`; 
                 if(po && po.trim() !== "") z += `^FO30,760^FB752,3,0,C,0^A0N,40,40^FDPO: ${po.toUpperCase().replace(/\n/g, '\\&')}^FS`;
                 z += `^FO30,1020^FB752,1,0,C,0^A0N,150,150^FD${count}^FS^XZ`; 
                 return z; 
@@ -104,7 +104,7 @@
         function syncToBrowser() { localStorage.setItem('RP_ACTIVE_ISA', JSON.stringify(ISA_GROUPS)); }
         window.onload = () => { const saved = localStorage.getItem('RP_ACTIVE_ISA'); if(saved) { ISA_GROUPS = JSON.parse(saved); renderDashboard(); } };
 
-        function formatShortDate(n) { if (!n) return "NO DATE"; if (n instanceof Date) return n.getDate() + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][n.getMonth()]; if (typeof n === 'number' && n > 40000) { const d = new Date((n - 25569) * 86400 * 1000); return d.getDate() + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getMonth()]; } const s = String(n).trim(); if (s.includes('-')) { const p = s.split('-'); return parseInt(p[2]) + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(p[1]) - 1]; } return s; }
+        function formatShortDate(n) { if (!n) return "NO DATE"; if (n instanceof Date) return n.getDate() + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][n.getMonth()]; if (typeof n === 'number' && n > 40000) { const d = new Date((n - 25569) * 86400 * 1000); return d.getDate() + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getMonth()]; } const s = String(n).trim(); if (s.includes('-')) { const p = s.split('-'); return parseInt(p[2] || p[0]) + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(p[1]) - 1]; } return s; }
         function formatTime(n) { if (!n) return "00:00"; if (n instanceof Date) return n.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); if (typeof n === 'number') { const s = Math.round(n * 86400), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`; } return String(n); }
         
         function loadData(input) { if (!input.files || !input.files[0]) return; const file = input.files[0], reader = new FileReader(); reader.onload = (e) => { try { const data = new Uint8Array(e.target.result), workbook = XLSX.read(data, { type: 'array', cellDates: true }); const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 }); processSpreadsheetData(jsonData); syncToBrowser(); renderDashboard(); } catch (err) { alert('File Error'); } input.value = ''; }; reader.readAsArrayBuffer(file); }
@@ -132,20 +132,53 @@
             });
         }
 
-        async function launchPrinter(list) { const pWin = window.open('', '_blank', 'width=800,height=900'); if (!pWin) return alert("Allow pop-ups."); const urls = list.map(z => `https://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/${encodeURIComponent(z)}`); pWin.document.write(`<html><head><style>@page { size: 101.6mm 152.4mm; margin: 0; } body { margin: 0; background: #000; text-align: center; color: #10b981; font-family: sans-serif; } img { width: 101.6mm; height: 152.4mm; display: block; page-break-after: always; margin: 0 auto; } #st { padding: 40px; font-size: 24px; font-weight: 800; }</style></head><body><div id="st">LOADING: <span id="cur">0</span> / ${urls.length}</div><div id="c"></div><script>const urls = ${JSON.stringify(urls)}; let count = 0; async function process() { const container = document.getElementById('c'); for (let i = 0; i < urls.length; i++) { await new Promise((resolve) => { const img = new Image(); img.src = urls[i]; img.onload = () => { container.appendChild(img); count++; document.getElementById('cur').innerText = count; resolve(); }; img.onerror = () => { count++; resolve(); }; }); } document.getElementById('st').style.display='none'; setTimeout(() => { window.print(); window.close(); }, 500); } process();<\/script></body></html>`); pWin.document.close(); }
+        /* FIXED SEQUENTIAL ITERATOR: Ensures no labels are skipped */
+        async function launchPrinter(list) { 
+            const pWin = window.open('', '_blank', 'width=800,height=900'); 
+            if (!pWin) return alert("Allow pop-ups.");
+            const urls = list.map(z => `https://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/${encodeURIComponent(z)}`); 
+            
+            pWin.document.write(`<html><head><style>@page { size: 101.6mm 152.4mm; margin: 0; } body { margin: 0; background: #000; text-align: center; color: #10b981; font-family: sans-serif; } img { width: 101.6mm; height: 152.4mm; display: block; page-break-after: always; margin: 0 auto; } #st { padding: 40px; font-size: 24px; font-weight: 800; }</style></head><body><div id="st">LOADING: <span id="cur">0</span> / ${urls.length}</div><div id="c"></div><script>
+                const urls = ${JSON.stringify(urls)}; 
+                let count = 0; 
+                async function process() { 
+                    const container = document.getElementById('c'); 
+                    for (let i = 0; i < urls.length; i++) { 
+                        // Sequence Guard: Wait for the current image to fully finish before moving to the next
+                        await new Promise((resolve) => { 
+                            const img = new Image(); 
+                            img.onload = () => { 
+                                container.appendChild(img); 
+                                count++; 
+                                document.getElementById('cur').innerText = count; 
+                                resolve(); 
+                            }; 
+                            img.onerror = () => { 
+                                console.error("Retry Label " + (i+1));
+                                img.src = urls[i] + "?retry=" + Date.now(); // Cache bust retry
+                            };
+                            img.src = urls[i]; 
+                        }); 
+                    } 
+                    document.getElementById('st').style.display='none'; 
+                    setTimeout(() => { window.print(); window.close(); }, 800); 
+                } process();
+            <\/script></body></html>`); 
+            pWin.document.close(); 
+        }
+
         async function saveAsData() { const dataStr = JSON.stringify(ISA_GROUPS, null, 2); if (window.showSaveFilePicker) { try { const h = await window.showSaveFilePicker({ suggestedName: 'BATCH.json' }); const w = await h.createWritable(); await w.write(dataStr); await w.close(); } catch (e) {} } else { const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "BATCH.json"; link.click(); } }
-        function printSingle(id, idx) { const b = ISA_GROUPS[id], j = b.jobs[idx], labels = []; if(j.qty === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1, false)); else for(let i=1; i<=j.qty; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty, false)); launchPrinter(labels); }
-        function printBundle(id) { const b = ISA_GROUPS[id], labels = []; if (b.printMode === 'ISA') { const total = b.jobs.reduce((s, j) => s + (j.qty > 0 ? j.qty : 0), 0); if (total === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", 0, 1, true)); else for (let i = 1; i <= total; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", i, total, true)); } else { b.jobs.forEach(j => { if(j.qty === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1, false)); else for(let i=1; i<=j.qty; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty, false)); }); } launchPrinter(labels); }
-        function printSelectedBundles() { let mega = []; Object.keys(ISA_GROUPS).filter(k => ISA_GROUPS[k].selected).forEach(id => { const b = ISA_GROUPS[id]; if (b.printMode === 'ISA') { const total = b.jobs.reduce((s, j) => s + (j.qty > 0 ? j.qty : 0), 0); if (total === 0) mega.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", 0, 1, true)); else for (let i = 1; i <= total; i++) mega.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", i, total, true)); } else { b.jobs.forEach(j => { if(j.qty === 0) mega.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1, false)); else for(let i=1; i<=j.qty; i++) mega.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty, false)); }); } }); launchPrinter(mega); }
+        function printSingle(id, idx) { const b = ISA_GROUPS[id], j = b.jobs[idx], labels = []; if(j.qty === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1)); else for(let i=1; i<=j.qty; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty)); launchPrinter(labels); }
+        function printBundle(id) { const b = ISA_GROUPS[id], labels = []; if (b.printMode === 'ISA') { const total = b.jobs.reduce((s, j) => s + (j.qty > 0 ? j.qty : 0), 0); if (total === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", 0, 1)); else for (let i = 1; i <= total; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", i, total)); } else { b.jobs.forEach(j => { if(j.qty === 0) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1)); else for(let i=1; i<=j.qty; i++) labels.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty)); }); } launchPrinter(labels); }
+        function printSelectedBundles() { let mega = []; Object.keys(ISA_GROUPS).filter(k => ISA_GROUPS[k].selected).forEach(id => { const b = ISA_GROUPS[id]; if (b.printMode === 'ISA') { const total = b.jobs.reduce((s, j) => s + (j.qty > 0 ? j.qty : 0), 0); if (total === 0) mega.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", 0, 1)); else for (let i = 1; i <= total; i++) mega.push(ZPL.label(b.carrier, b.date, b.time, b.id, "", i, total)); } else { b.jobs.forEach(j => { if(j.qty === 0) mega.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, 0, 1)); else for(let i=1; i<=j.qty; i++) mega.push(ZPL.label(b.carrier, b.date, b.time, j.isd, j.po, i, j.qty)); }); } }); launchPrinter(mega); }
         function selectAll(v) { Object.keys(ISA_GROUPS).forEach(k => ISA_GROUPS[k].selected = v); renderDashboard(); }
         function expandAll(v) { Object.keys(ISA_GROUPS).forEach(k => ISA_GROUPS[k].collapsed = !v); renderDashboard(); }
         function toggleCollapse(id) { ISA_GROUPS[id].collapsed = !ISA_GROUPS[id].collapsed; renderDashboard(); }
         function resetAllData() { if(confirm("Wipe list?")) { ISA_GROUPS = {}; syncToBrowser(); location.reload(); } }
         function handleSearch() { searchQuery = document.getElementById('mainSearch').value.toLowerCase(); renderDashboard(); }
         let idleTimer; function resetIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => syncToBrowser(), 60000); }
-
         function getSatchelPageHtml(id) { const b = ISA_GROUPS[id], total = b.jobs.reduce((s,j)=>s+(j.qty||0), 0); const tableRows = b.jobs.slice(0, 10).map(j => `<tr><td>${j.isd}</td><td>${j.po || '-'}</td><td align="center"><b>${j.qty}</b></td><td align="center">0</td></tr>`).join(''); return `<div class="satchel-page"><div class="back-half"><h3>Detailed Manifest</h3><table><thead><tr><th>ISD Shipment</th><th>PO#</th><th align="center">PLT</th><th align="center">ITM</th></tr></thead><tbody>${tableRows}</tbody></table><div class="summary"><span>PALLETS: ${total}</span><span>ITEMS: 0</span></div></div><div class="front-half"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div style="flex: 1;"><div class="carrier-primary" style="font-size: 3.5rem;">${b.carrier}</div><div class="isa-secondary" style="font-size: 1.8rem;">ISA: ${b.id}</div><div class="date-time" style="font-size: 1.2rem;">${b.date} | ${b.time}</div></div><div style="border: 8px solid #000; padding: 15px; text-align: center; min-width: 120px;"><div style="font-size: 1rem; font-weight: 800; margin-bottom: 5px;">PALLETS</div><div style="font-size: 4rem; font-weight: 900; line-height: 1;">${total}</div></div></div></div></div>`; }
-        function writeSatchelBatch(win, ids) { let content = ids.map(id => getSatchelPageHtml(id)).join(''); win.document.write(`<html><head><style>@page { size: A4 portrait; margin: 0; } body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; color: #000; -webkit-print-color-adjust: exact; } .satchel-page { height: 297mm; width: 210mm; display: flex; flex-direction: column; overflow: hidden; page-break-after: always; } .back-half { height: 148.5mm; padding: 15mm 20mm; box-sizing: border-box; overflow: hidden; } .back-half h3 { margin: 0 0 10px 0; font-size: 1.2rem; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 5px; } .front-half { height: 148.5mm; padding: 20mm; box-sizing: border-box; display: flex; flex-direction: column; transform: rotate(180deg); justify-content: center; border-top: 1px dashed #ccc; } .carrier-primary { font-weight: 800; line-height: 0.9; margin-bottom: 12px; text-transform: uppercase; } .isa-secondary { font-weight: 600; border-top: 4px solid #000; padding-top: 12px; margin-bottom: 6px; } .date-time { color: #333; font-weight: 400; } table { width: 100%; border-collapse: collapse; margin-top: 5px; } th { text-align: left; padding: 8px 12px; border-bottom: 2px solid #000; font-size: 0.75rem; text-transform: uppercase; } td { padding: 6px 12px; border-bottom: 1px solid #eee; } .summary { margin-top: 15px; display: flex; justify-content: space-between; font-weight: 800; font-size: 1rem; border-top: 2px solid #000; padding-top: 10px; }</style></head><body>${content}<script>window.onload = () => { setTimeout(() => { window.print(); window.close(); }, 500); };<\/script></body></html>`); win.document.close(); }
+        function writeSatchelBatch(win, ids) { let content = ids.map(id => getSatchelPageHtml(id)).join(''); win.document.write(`<html><head><style>@page { size: A4 portrait; margin: 0; } body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; color: #000; } .satchel-page { height: 297mm; width: 210mm; display: flex; flex-direction: column; overflow: hidden; page-break-after: always; } .back-half { height: 148.5mm; padding: 15mm 20mm; box-sizing: border-box; overflow: hidden; } .back-half h3 { margin: 0 0 10px 0; font-size: 1.2rem; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 5px; } .front-half { height: 148.5mm; padding: 20mm; box-sizing: border-box; display: flex; flex-direction: column; transform: rotate(180deg); justify-content: center; border-top: 1px dashed #ccc; } .carrier-primary { font-weight: 800; line-height: 0.9; margin-bottom: 12px; text-transform: uppercase; } .isa-secondary { font-weight: 600; border-top: 4px solid #000; padding-top: 12px; margin-bottom: 6px; } .date-time { color: #333; font-weight: 400; } table { width: 100%; border-collapse: collapse; margin-top: 5px; } th { text-align: left; padding: 8px 12px; border-bottom: 2px solid #000; font-size: 0.75rem; text-transform: uppercase; } td { padding: 6px 12px; border-bottom: 1px solid #eee; } .summary { margin-top: 15px; display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; border-top: 2px solid #000; padding-top: 10px; }</style></head><body>${content}<script>window.onload = () => { setTimeout(() => { window.print(); window.close(); }, 500); };<\/script></body></html>`); win.document.close(); }
         function printSatchel(id) { const sWin = window.open('', '_blank', 'width=900,height=1000'); writeSatchelBatch(sWin, [id]); }
         function printSelectedSatchels() { const sel = Object.keys(ISA_GROUPS).filter(k => ISA_GROUPS[k].selected); if (!sel.length) return alert("Select at least one."); const sWin = window.open('', '_blank', 'width=900,height=1000'); writeSatchelBatch(sWin, sel); }
     </script>
